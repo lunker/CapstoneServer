@@ -16,6 +16,14 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>org.apache.mahout</groupId>
+			<artifactId>mahout-math</artifactId>
+			<version>${mahout.version}</version>
+		</dependency>
+
+
+
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<exclusions>
@@ -100,6 +108,7 @@
 		<lib.dir>lib</lib.dir>
 		<jar.name>CapstoneServer</jar.name>
 		<org.slf4j-version>1.6.6</org.slf4j-version>
+		<mahout.version>0.10.1</mahout.version>
 	</properties>
 
 	<build>
