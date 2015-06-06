@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class ReviewModel {
-
 	
 	// review id
 	@JsonIgnore
@@ -30,8 +29,9 @@ public class ReviewModel {
 			@JsonProperty("userid")String userId, 
 			@JsonProperty("placeid")String placeId, 
 			@JsonProperty("code")String code, 
-			@JsonProperty("rating") String rating) {
+			@JsonProperty("ratings") String rating) {
 		super();
+		
 		this.id = id;
 		this.date = date;
 		this.userId = userId;

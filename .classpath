@@ -27,8 +27,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/lunker/Documents/springworkspace/CapstoneServer/mahout-core-0.9-job.jar"/>
-	<classpathentry kind="lib" path="/Users/lunker/Documents/springworkspace/CapstoneServer/mahout-core-0.9.jar"/>
-	<classpathentry kind="lib" path="/Users/lunker/Documents/springworkspace/CapstoneServer/mahout-integration-0.9.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

@@ -1,7 +1,9 @@
 package dk.spring.server.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.avro.data.Json;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -49,15 +53,60 @@ public class CourseController {
 	}
 	*/
 	
-	@RequestMapping(value="/loadCourse", method=RequestMethod.GET)
+	@RequestMapping(value="/loadcourse", method=RequestMethod.GET)
 	public String loadCourse(
-			@RequestParam(value="asdf")String tmp
+			@RequestParam(value="userid")String userId
 			){
-		return "";
+		System.out.println("[LOAD_COURSE] " + userId);
+		Document course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
 		
+		String placeIds = course.getString("placeids");
+		System.out.println("before split : "+placeIds);
+		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		ArrayNode courseArrayNode = root.putArray("course");
+		JsonNode placeIdsNode = null;
+		
+		try {
+			placeIdsNode = mapper.readTree(placeIds);
+			JsonNode place = null;
+			Document tmpPlace = null;
+			
+			if(placeIdsNode.isArray()){
+				
+				for(int i=0; i<placeIdsNode.size(); i++){
+					place = placeIdsNode.get(i);
+					tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
+					.find(new Document("id", place.get("placeid").asText())).first();
+					
+					courseArrayNode.add( makeObjectNode(tmpPlace));
+				}
+			}
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		courseArrayNode = null;
+		placeIdsNode = null;
+		course = null;
+		
+		return root.toString();
 	}
 	
-	@RequestMapping(value="/savecourse2", method=RequestMethod.POST)
+	/*
+	 * 
+	 * 수정해야함 . . . .
+	 * json 방식 바꿨음 !!
+	 * 
+	 * 
+	 * 
+	 */
+	
+	@RequestMapping(value="/savecourse", method=RequestMethod.POST)
 	public String saveCourse(
 //			@RequestParam(value="userid", defaultValue="1", required=false) String userId,
 //			@RequestParam(value="placeids", defaultValue="1", required=false) String placeIds
@@ -65,6 +114,8 @@ public class CourseController {
 			){
 		
 		System.out.println("userid:"+ course.getUserId() + "placeids" + course.getPlaceIds());
+		
+		/*
 		int totalCourses = 0;
 		
 		try{
@@ -78,10 +129,11 @@ public class CourseController {
 			totalCourses = 0;
 			System.out.println("projection error, null?");
 		}
+		*/
 		
 		// generate course information
 //		CourseModel course = new CourseModel();
-		course.setCourseId("mc"+(totalCourses+1));
+		course.setCourseId("0");
 		
 		Document doc = new Document();
 		doc.append("userid", course.getUserId());
@@ -89,7 +141,8 @@ public class CourseController {
 		doc.append("courseid", course.getCourseId());
 		
 		try{
-			connector.getMyCollection(course.getUserId()).insertOne(doc);
+			connector.getMyCollection(course.getUserId()).findOneAndUpdate(new Document("id",course.getUserId()), new Document("$set", doc));
+			
 		} catch(MongoException me){
 			me.printStackTrace();
 			return "0";
@@ -110,7 +163,7 @@ public class CourseController {
 			){
 
 		logger.info("[COURSE_RECOMMEND] in course recommend");
-		System.out.println("lat,lng:"+latitude+ ","+longitude);
+		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
 		
 		/*
 		 * 
@@ -121,7 +174,7 @@ public class CourseController {
 		// 전체적인 코스는 3개 
 		
 		String preferCategorys = connector.getMyCollection(userId).find(new Document("id", userId)).first().getString("prefercategory");
-		
+		System.out.println("categorys"+preferCategorys);
 		String[] categorys = preferCategorys.split(",");
 		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
 
@@ -139,10 +192,11 @@ public class CourseController {
 		/*
 		 * Generate Course
 		 */
-		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
 		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		ArrayNode courseArrayNode = null;
 		for(int course=0; course<3; course++){
-			ArrayNode courseArrayNode = root.putArray("course"+course);
+			 courseArrayNode = root.putArray("course"+course);
 			for(int num=0; num<categorys.length; num++){
 				courseArrayNode.add(placesTaker.get(num).get(course));
 			}
@@ -151,6 +205,7 @@ public class CourseController {
 //		root.putArray("course1").add(placesTaker.get().get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
 //		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
 //		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
+		placesTaker = null;
 		
 		return root.toString();
 	}
@@ -158,7 +213,7 @@ public class CourseController {
 	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude){
 		
 		ArrayList<ObjectNode> placeStack = new ArrayList<ObjectNode>();
-		
+		Document place = null;
 		// 평점순으로 정렬된 place list
 		MongoCursor<Document> allDocuments = connector.getMyCollection(connector.codeToCollection(code)).
 						find().sort(Sorts.descending("ratings")).iterator();
@@ -166,7 +221,7 @@ public class CourseController {
 				// firstPlaceList.
 		while (allDocuments.hasNext()) {
 
-			Document place = allDocuments.next();
+			place = allDocuments.next();
 					
 			try{
 				if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
@@ -186,8 +241,9 @@ public class CourseController {
 				
 		if(placeStack.size()<=3){
 			allDocuments = connector.getMyCollection(connector.codeToCollection(code)).find().sort(Sorts.descending("ratings")).iterator();
+//			allDocuments.
 			while (allDocuments.hasNext()) {
-				Document place = allDocuments.next();
+				place = allDocuments.next();
 						
 				try{
 					if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
@@ -209,9 +265,9 @@ public class CourseController {
 				}
 			}// end while
 		}// end if
-				
-				
-				
+
+		place = null;
+		allDocuments = null;
 		return placeStack;
 	}
 	
