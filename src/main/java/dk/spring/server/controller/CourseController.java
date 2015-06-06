@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.MongoException;
 import com.mongodb.client.MongoCursor;
@@ -105,35 +106,80 @@ public class CourseController {
 	public String recommendCourse(
 			@RequestParam(value="latitude", defaultValue="1", required=false)String latitude, 
 			@RequestParam(value="longitude", defaultValue="1", required=false)String longitude,
-			@RequestParam(value="placeCodeFirst", defaultValue="1", required=false)String placeCodeFirst, 
-			@RequestParam(value="placeCodeSecond", defaultValue="1", required=false)String placeCodeSecond, 
-			@RequestParam(value="placeCodeThird", defaultValue="1", required=false)String placeCodeThird) {
+			@RequestParam(value="userid", defaultValue="1", required=false) String userId
+			){
 
 //		System.out.println("[COURSE_RECOMMEND] in course recommend");
 		logger.info("[COURSE_RECOMMEND] in course recommend");
 		System.out.println("lat,lng:"+latitude+ ","+longitude);
 		
+		/*
+		 * 
+		 * Get user category
+		 */
 		
-		ArrayList<ObjectNode> placeFirstStack = new ArrayList<ObjectNode>();
-		ArrayList<ObjectNode> placeSecondStack = new ArrayList<ObjectNode>();
-		ArrayList<ObjectNode> placeThirdStack = new ArrayList<ObjectNode>();
+		// 1 코스에 사용자가 설정한 카테고리 수 만큼 장소가 들어간다.
+		// 전체적인 코스는 3개 
+		
+		String preferCategorys = connector.getMyCollection(userId).find(new Document("id", userId)).first().getString("prefercategory");
+		
+		String[] categorys = preferCategorys.split(",");
+		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
+
+		/*
+		 * Get recommend from user category
+		 */
+		for(int num=0; num<categorys.length; num++){
+			placesTaker.add(findPlace(categorys[num], latitude, longitude));
+		}
+		
+		
+		/*
+		 * 
+		 * find minimum
+		 */
+		
+		/*
+		 * 
+		 * Generate Course
+		 */
+		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		
+		for(int course=0; course<3; course++){
+			ArrayNode courseArrayNode = root.putArray("course"+course);
+			for(int num=0; num<categorys.length; num++){
+				courseArrayNode.add(placesTaker.get(num).get(course));
+			}
+			
+		}
+		
+//		root.putArray("course1").add(placesTaker.get().get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
+//		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
+//		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
+		
+		return root.toString();
+	}
+
+	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude){
+		
+		ArrayList<ObjectNode> placeStack = new ArrayList<ObjectNode>();
 		
 		// 평점순으로 정렬된 place list
-		MongoCursor<Document> firstPlaceList = 
-				connector.getMyCollection(connector.codeToCollection(placeCodeFirst)).
-				find().sort(Sorts.descending("ratings")).iterator();
+		MongoCursor<Document> allDocuments = connector.getMyCollection(connector.codeToCollection(code)).
+						find().sort(Sorts.descending("ratings")).iterator();
 
-		// firstPlaceList.
-		while (firstPlaceList.hasNext()) {
+				// firstPlaceList.
+		while (allDocuments.hasNext()) {
 
-			Document place = firstPlaceList.next();
-			
+			Document place = allDocuments.next();
+					
 			try{
 				if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
 						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 1000){
 					System.out.println("first bb");
-					if(placeFirstStack.size()<=3){
-						placeFirstStack.add(makeObjectNode(place));
+					if(placeStack.size()<=3){
+						placeStack.add(makeObjectNode(place));
 					}
 					else
 						break;
@@ -142,66 +188,24 @@ public class CourseController {
 				System.out.println("error in first place");
 				continue;
 			}
-		}
-		
-		
-		MongoCursor<Document> secondPlaceList = connector.getMyCollection(connector.codeToCollection(placeCodeSecond)).find().sort(Sorts.descending("ratings")).iterator();
-		
-		while (secondPlaceList.hasNext()) {
-//			System.out.println("iter second ");
-			Document place = secondPlaceList.next();
-			
-			try{
-				if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 1000){
-					System.out.println("sec bb");
-					if(placeSecondStack.size()<=3)
-						placeSecondStack.add(makeObjectNode(place));
-					else
-						break;
-				}
-			} catch(Exception e){
-				System.out.println("error in second place");
-				continue;
-			}
-			
-		}		
-		
-		MongoCursor<Document> thirdPlaceList = connector.getMyCollection(connector.codeToCollection(placeCodeThird)).find().sort(Sorts.descending("ratings")).iterator();
-
-		while (thirdPlaceList.hasNext()) {
-			Document place = thirdPlaceList.next();
-			
-			try{
-				if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 2500){
-					System.out.println("thr bb");
-					
-					if(placeThirdStack.size()<=3)
-						placeThirdStack.add(makeObjectNode(place));
-					else
-						break;
-				}
-			} catch(Exception e){
-				System.out.println("error in thrd place");
-				continue;
-			}
-
-			
-		}
-		
-		if(placeThirdStack.size()<=3){
-			thirdPlaceList = connector.getMyCollection(connector.codeToCollection(placeCodeThird)).find().sort(Sorts.descending("ratings")).iterator();
-			while (thirdPlaceList.hasNext()) {
-				Document place = thirdPlaceList.next();
+		}// end while
 				
+		if(placeStack.size()<=3){
+			allDocuments = connector.getMyCollection(connector.codeToCollection(code)).find().sort(Sorts.descending("ratings")).iterator();
+			while (allDocuments.hasNext()) {
+				Document place = allDocuments.next();
+						
 				try{
 					if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-							Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 4500){
+							Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 3500){
 						System.out.println("thr bb");
-						
-						if(placeThirdStack.size()<=3)
-							placeThirdStack.add(makeObjectNode(place));
+								
+						if(placeStack.size()<=3){
+							for(int i=0; i<placeStack.size(); i++){
+								if( !placeStack.get(i).get("title").equals(place.getString("title")))
+									placeStack.add(makeObjectNode(place));
+							}
+						}
 						else
 							break;
 					}
@@ -209,40 +213,15 @@ public class CourseController {
 					System.out.println("error in third place");
 					continue;
 				}
-
+			}// end while
+		}// end if
 				
-			}
-		}
-
-		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-//		courses.put
-		/*
-		course1.putArray("asdf").add(course2)
-		course1.put("first", placeFirstStack.get(0));
-		course1.put("second", placeSecondStack.get(0));
-		course1.put("third", placeThirdStack.get(0));
-		root.put("course1", course1.toString());
-		
-		
-		course2.put("first", placeFirstStack.get(1));
-		course2.put("second", placeSecondStack.get(1));
-		course2.put("third", placeThirdStack.get(1));
-		root.put("course2", course1.toString());
-		
-		course3.put("first", placeFirstStack.get(2));
-		course3.put("second", placeSecondStack.get(2));
-		course3.put("third", placeThirdStack.get(2));
-		root.put("course3", course1.toString());
-		*/
-		
-		
-		root.putArray("course1").add(placeFirstStack.get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
-		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
-		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
-		
-		return root.toString();
+				
+				
+		return placeStack;
 	}
-
+	
+	
 	@RequestMapping(value="/courseGPS")
 	public String recommendCourseByGPS(
 			@RequestParam(value="latitude")String latitude,
