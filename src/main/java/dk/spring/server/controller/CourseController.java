@@ -42,7 +42,6 @@ public class CourseController {
 			@RequestParam(value="secondplaceid", defaultValue="1", required=false)String secondPlaceId, 
 			@RequestParam(value="thirdplaceid", defaultValue="1", required=false)String thirdPlaceId){
 		
-		
 		connector.saveCourse(userid, firstPlaceId, secondPlaceId, thirdPlaceId);
 		
 		return "";
