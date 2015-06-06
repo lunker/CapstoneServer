@@ -33,6 +33,8 @@ public class UserRecomm {
 				neighborhood, similarity);
 
 		// recommender.recommend 에서 앞에 파라미터가 유저 id, 뒤에 파라미터가 추천갯수
+		
+		// recommender를 이용해서 추천 받는다.. !  
 		List<RecommendedItem> recommendations = recommender.recommend(1, 2);
 
 		for (RecommendedItem recommendation : recommendations) {

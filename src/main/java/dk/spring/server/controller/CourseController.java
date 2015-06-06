@@ -36,7 +36,7 @@ public class CourseController {
 	 */
 	
 	/*
-	@RequestMapping(value="/savecourse", method=RequestMethod.POST)
+	@RequestMapping(value="/saecourse", method=RequestMethod.POST)
 	public String saveCourse(
 			@RequestParam(value="userid", defaultValue="1", required=false)String userid, 
 			@RequestParam(value="firstplaceid", defaultValue="1", required=false)String firstPlaceId, 
@@ -109,7 +109,6 @@ public class CourseController {
 			@RequestParam(value="userid", defaultValue="1", required=false) String userId
 			){
 
-//		System.out.println("[COURSE_RECOMMEND] in course recommend");
 		logger.info("[COURSE_RECOMMEND] in course recommend");
 		System.out.println("lat,lng:"+latitude+ ","+longitude);
 		
@@ -133,17 +132,13 @@ public class CourseController {
 			placesTaker.add(findPlace(categorys[num], latitude, longitude));
 		}
 		
-		
 		/*
-		 * 
 		 * find minimum
 		 */
 		
 		/*
-		 * 
 		 * Generate Course
 		 */
-		
 		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
 		
 		for(int course=0; course<3; course++){
@@ -151,7 +146,6 @@ public class CourseController {
 			for(int num=0; num<categorys.length; num++){
 				courseArrayNode.add(placesTaker.get(num).get(course));
 			}
-			
 		}
 		
 //		root.putArray("course1").add(placesTaker.get().get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
@@ -221,13 +215,11 @@ public class CourseController {
 		return placeStack;
 	}
 	
-	
 	@RequestMapping(value="/courseGPS")
 	public String recommendCourseByGPS(
 			@RequestParam(value="latitude")String latitude,
 			@RequestParam(value="longitude")String longitude,
 			@RequestParam(value="categorys")String categorys){
-		
 		
 		String collection = connector.codeToCollection(categorys);
 		ArrayList<String> nearPlacesList = new ArrayList<String>();
@@ -254,6 +246,8 @@ public class CourseController {
 	/*
 	 * 나중에 ~
 	 */
+	
+	
 	@RequestMapping(value="/courseTheme")
 	public String recommedCourseByTheme(
 			
