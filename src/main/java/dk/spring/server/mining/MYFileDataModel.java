@@ -18,15 +18,15 @@ public class MYFileDataModel {
 	private BufferedReader bufferedReader;
 	private BufferedWriter bufferedWriter;
 	
-	Hashtable<String,Integer> hashtable;
+	Hashtable<String, String> hashtable;
 	
-	int itemID = 0;
+	String itemID = "";
 	
 	public MYFileDataModel(File dataFile) throws IOException {
 		
 		String str = null;
 		//csv파일을  장소카테고리(String), 장소에 따른 고유ID(Integer) 형태로 저장할 Hashtable 생성.
-		hashtable = new Hashtable<String , Integer>();	
+		hashtable = new Hashtable<String , String>();	
 		
 		
 		bufferedReader = new BufferedReader(new FileReader(dataFile));   
@@ -43,7 +43,8 @@ public class MYFileDataModel {
 			if(hashtable.get(arr[1]) == null){
 				hashtable.put(arr[1], itemID);	
 				arr[1] = ""+itemID;
-				itemID++;
+//				itemID++;
+				
 			}else{
 				arr[1] = "" + hashtable.get(arr[1]);
 			}

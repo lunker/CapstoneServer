@@ -137,6 +137,18 @@ public class DatabaseConnector {
 			return result.toJson();
 		}
 	}
+	
+	public Document getPlaceById(String code, String placeid){
+		
+		
+		Document place = null;
+		
+		place = getMyCollection(codeToCollection(code)).find(new Document("id", placeid)).first();
+		
+		
+		return place;
+		
+	}
 
 	public boolean isSaved(String id, String code){
 		

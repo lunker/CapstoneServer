@@ -24,7 +24,6 @@ public class CSVGenerator {
 	private String CSV_REST = "csv_rest.csv";
 	private String CSV_TOUR = "csv_tour.csv";
 	private String CSV_CULTURE = "csv_culture.csv";
-//	private String CSV_ = "csv_";
 	
 	
 	private File fFood = null;
@@ -48,36 +47,69 @@ public class CSVGenerator {
 		MongoCursor<Document> allReviews = connector.getMyCollection("review").find().iterator();
 		Document review = null;
 		String content = "";
+		int userid = 0;
+		String placeid = "";
+		double ratings = 0.0;
+		
 		while(allReviews.hasNext()){
 			
 			review = allReviews.next();
 //			content+=review.getString("userid")+","+review.getString("placeid")+","+review.get
 			
+			userid = Integer.parseInt(review.getString("userid").substring(1));
+			placeid = review.getString("placeid");
+			ratings = review.getDouble("ratings");
+			content = userid+","+placeid+","+ratings;
 			// 식당 
 			if(review.getString("code").equals("FD6")){
-				
+				try {
+					fosFood.write(content.getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// 카페 
 			else if(review.getString("code").equals("CE7")){
-				
+				try {
+					fosCafe.write(content.getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// 숙박 
 			else if(review.getString("code").equals("AD5")){
-				
+				try {
+					fosRest.write(content.getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// 관광지 
 			else if(review.getString("code").equals("AT4")){
-				
+				try {
+					fosTour.write(content.getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			// 문
 			else{
-				
+				try {
+					fosCulture.write(content.getBytes());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			
+			content="";
 			
 		}// end while
 	}// end method 
-	
-	
 	
 	public void fileOpen(){
 		try {

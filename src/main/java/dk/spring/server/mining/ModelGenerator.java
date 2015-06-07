@@ -2,7 +2,6 @@ package dk.spring.server.mining;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
@@ -10,29 +9,83 @@ import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
-import org.apache.mahout.cf.taste.recommender.RecommendedItem;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
 public class ModelGenerator {
 
-	private static Recommender foodRcm = null;
-	private static Recommender cafeRcm = null;
-	private static Recommender restRcm = null;
-	private static Recommender tourRcm = null;
-	private static Recommender cultureRcm = null;
+	 static Recommender foodRcm = null;
+	 static Recommender cafeRcm = null;
+	 static Recommender restRcm = null;
+	 static Recommender tourRcm = null;
+	 static Recommender cultureRcm = null;
+
+	static String PATH = "/home/lunker/csv";
+
+	static String CSV_FOOD = "csv_food.csv";
+	static String CSV_CAFE = "csv_cafe.csv";
+	static String CSV_REST = "csv_rest.csv";
+	static String CSV_TOUR = "csv_tour.csv";
+	static String CSV_CULTURE = "csv_culture.csv";
+
 	
-	
-	public void start(){
+	static{
 		
-		
+		for (int i = 0; i < 5; i++) {
+			System.out.println("[MODEL_GENERATOR] initializing . . .");
+
+			switch(i){
+				case 0: cafeRcm = generate(PATH+"/"+CSV_CAFE); break;
+				case 1: cultureRcm = generate(PATH+"/"+CSV_CULTURE);break;
+				case 2: foodRcm = generate(PATH+"/"+CSV_FOOD);break;
+				case 3: restRcm = generate(PATH+"/"+CSV_REST);break;
+				case 4: tourRcm = generate(PATH+"/"+CSV_TOUR);break;
+			
+			}
+		}// end for 
 	}
 	
-	public Recommender generate(){
-		MYFileDataModel dataModel;
-		try {
-			dataModel = new MYFileDataModel(new File("data/intro2.csv"));
+	public static Recommender getFoodRcm() {
+		return foodRcm;
+	}
+
+	public static Recommender getCafeRcm() {
+		return cafeRcm;
+	}
+
+	public static Recommender getRestRcm() {
+		return restRcm;
+	}
+
+	public static Recommender getTourRcm() {
+		return tourRcm;
+	}
+
+	public static Recommender getCultureRcm() {
+		return cultureRcm;
+	}
+
+	public void start() {
+		for (int i = 0; i < 5; i++) {
 			
+			switch(i){
+			
+			case 0: cafeRcm = generate(PATH+"/"+CSV_CAFE); break;
+			case 1: cultureRcm = generate(PATH+"/"+CSV_CULTURE);break;
+			case 2: foodRcm = generate(PATH+"/"+CSV_FOOD);break;
+			case 3: restRcm = generate(PATH+"/"+CSV_REST);break;
+			case 4: tourRcm = generate(PATH+"/"+CSV_TOUR);break;
+			
+			}
+		}// end for 
+	}// end method
+
+	static Recommender generate(String path) {
+		MYFileDataModel dataModel;
+
+		try {
+			dataModel = new MYFileDataModel(new File(path));
+
 			DataModel model = dataModel.getDataModel();
 
 			// dataModel의 인자를 getModel로 읽어들려 PearsonCorrelation에 의한 유사도 측정값음
@@ -45,21 +98,9 @@ public class ModelGenerator {
 			// 추천기 생성.
 			Recommender recommender = new GenericUserBasedRecommender(model,
 					neighborhood, similarity);
-
+			return recommender;
 			// recommender.recommend 에서 앞에 파라미터가 유저 id, 뒤에 파라미터가 추천갯수
-			
-			// recommender를 이용해서 추천 받는다.. !  
-			List<RecommendedItem> recommendations = recommender.recommend(1, 2);
 
-			for (RecommendedItem recommendation : recommendations) {
-
-				System.out.println(recommendation);
-
-			}
-			// itemId에 해당하는 장소명을 출력
-			System.out.println(dataModel.toString());
-			
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -67,11 +108,8 @@ public class ModelGenerator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 		return null;
-	}//end method
-	
-	
-	
+	}// end method
+
 }

@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import dk.spring.server.mining.CSVGenerator;
 import dk.spring.util.NetWork;
 
 @Configuration
@@ -28,6 +29,9 @@ public class Application {
 //		SetRating sr = new SetRating();
 //		sr.start();
 		
+		
+		CSVGenerator csv = new CSVGenerator();
+		csv.start();
 		
 	}
 	

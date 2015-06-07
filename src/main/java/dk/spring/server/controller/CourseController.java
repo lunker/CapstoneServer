@@ -2,9 +2,13 @@ package dk.spring.server.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.avro.data.Json;
 import org.apache.log4j.Logger;
+import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.recommender.RecommendedItem;
+import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.bson.Document;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +28,7 @@ import com.mongodb.client.model.Sorts;
 
 import dk.spring.server.factory.DBFactory;
 import dk.spring.server.factory.MapperFactory;
+import dk.spring.server.mining.ModelGenerator;
 import dk.spring.server.model.CourseModel;
 import dk.spring.util.DatabaseConnector;
 
@@ -90,20 +95,23 @@ public class CourseController {
 			e.printStackTrace();
 		}
 		
-		courseArrayNode = null;
+//		courseArrayNode = null;
 		placeIdsNode = null;
 		course = null;
 		
 		return root.toString();
 	}
 	
+	public String deletePlace(){
+		
+		
+		
+		
+		return "";
+	}
 	/*
-	 * 
 	 * 수정해야함 . . . .
 	 * json 방식 바꿨음 !!
-	 * 
-	 * 
-	 * 
 	 */
 	
 	@RequestMapping(value="/savecourse", method=RequestMethod.POST)
@@ -177,13 +185,46 @@ public class CourseController {
 		System.out.println("categorys"+preferCategorys);
 		String[] categorys = preferCategorys.split(",");
 		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
-
+		
 		/*
-		 * Get recommend from user category
+		 * Get recommend from mining
 		 */
+		
 		for(int num=0; num<categorys.length; num++){
-			placesTaker.add(findPlace(categorys[num], latitude, longitude));
+			try {
+				
+				// 추천 받은 장소의 아이디를 받아온다.
+				List<RecommendedItem> recommendedList = getRecommender(categorys[num]).
+						recommend(Integer.parseInt( userId.substring(1)) , 3 );
+				
+				// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
+				if(recommendedList.size()<3){
+					// ArrayList<ObjectNode>를 반환.
+					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
+					
+					for(int i=0; i<recommendedList.size(); i++){
+						
+						placesTaker.
+						get(num).
+							add(
+								makeObjectNode(
+										connector.getPlaceById(
+												categorys[num], recommendedList.get(i).getItemID()+"")));
+					}
+				}
+			} catch (NumberFormatException | TasteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
+		/*
+		 * Get recommend from ratings
+		 */
+		/*
+		for(int num=0; num<categorys.length; num++){
+			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
+		}
+		*/
 		
 		/*
 		 * find minimum
@@ -210,7 +251,7 @@ public class CourseController {
 		return root.toString();
 	}
 
-	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude){
+	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude, int count){
 		
 		ArrayList<ObjectNode> placeStack = new ArrayList<ObjectNode>();
 		Document place = null;
@@ -225,9 +266,9 @@ public class CourseController {
 					
 			try{
 				if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 1000){
+						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 1500){
 					System.out.println("first bb");
-					if(placeStack.size()<=3){
+					if(placeStack.size()<count){
 						placeStack.add(makeObjectNode(place));
 					}
 					else
@@ -239,8 +280,9 @@ public class CourseController {
 			}
 		}// end while
 				
+		/*
 		if(placeStack.size()<=3){
-			allDocuments = connector.getMyCollection(connector.codeToCollection(code)).find().sort(Sorts.descending("ratings")).iterator();
+//			allDocuments = connector.getMyCollection(connector.codeToCollection(code)).find().sort(Sorts.descending("ratings")).iterator();
 //			allDocuments.
 			while (allDocuments.hasNext()) {
 				place = allDocuments.next();
@@ -265,10 +307,34 @@ public class CourseController {
 				}
 			}// end while
 		}// end if
+		*/
 
 		place = null;
 		allDocuments = null;
 		return placeStack;
+	}
+	
+	public Recommender getRecommender(String category){
+		
+		Recommender rcm = null;
+		
+		if(category.equals("FD6")){
+			rcm = ModelGenerator.getFoodRcm();
+		}
+		else if(category.equals("CE7")){
+			rcm = ModelGenerator.getCafeRcm();
+		}
+		else if(category.equals("AD5")){
+			rcm = ModelGenerator.getRestRcm();
+		}
+		else if(category.equals("AT4")){
+			rcm = ModelGenerator.getTourRcm();
+		}
+		else{
+			rcm = ModelGenerator.getCultureRcm();
+		}
+		
+		return rcm; 
 	}
 	
 	@RequestMapping(value="/courseGPS")

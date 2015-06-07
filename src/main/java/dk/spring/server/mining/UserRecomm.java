@@ -42,7 +42,7 @@ public class UserRecomm {
 			List<RecommendedItem> recommendations = recommender.recommend(1, 2);
 
 			for (RecommendedItem recommendation : recommendations) {
-
+				
 				System.out.println(recommendation);
 
 			}
