@@ -85,7 +85,6 @@ public class ModelGenerator {
 
 		try {
 			dataModel = new FileDataModel(new File(path));
-
 //			DataModel model = dataModel.getDataModel();
 			// dataModel의 인자를 getModel로 읽어들려 PearsonCorrelation에 의한 유사도 측정값음
 			// similarity에 저장한다.
@@ -100,15 +99,21 @@ public class ModelGenerator {
 			return recommender;
 			// recommender.recommend 에서 앞에 파라미터가 유저 id, 뒤에 파라미터가 추천갯수
 			
+		} catch(IllegalArgumentException ae){
+			
+			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		} catch (TasteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
+		} catch (Exception e){
+			return null;
 		}
 
-		return null;
 	}// end method
 
 }

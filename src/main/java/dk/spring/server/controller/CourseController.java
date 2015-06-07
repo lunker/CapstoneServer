@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.avro.data.Json;
 import org.apache.log4j.Logger;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -63,59 +62,56 @@ public class CourseController {
 			@RequestParam(value="userid")String userId
 			){
 		System.out.println("[LOAD_COURSE] " + userId);
-		Document course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
-		
-		
-		String placeIds = course.getString("placeids");
-		System.out.println("before split : "+placeIds);
-		
-		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-		ArrayNode courseArrayNode = root.putArray("course");
-		JsonNode placeIdsNode = null;
-		
-		if(placeIds!=null){
-			try {
-				placeIdsNode = mapper.readTree(placeIds);
-				JsonNode place = null;
-				Document tmpPlace = null;
-				
-				if(placeIdsNode.isArray()){
+		Document course = null;
+		try{
+			course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
+			String placeIds = course.getString("placeids");
+			System.out.println("before split : "+placeIds);
+			
+			ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+			ArrayNode courseArrayNode = root.putArray("course");
+			JsonNode placeIdsNode = null;
+			
+			if(placeIds!=null){
+				try {
+					placeIdsNode = mapper.readTree(placeIds);
+					JsonNode place = null;
+					Document tmpPlace = null;
 					
-					for(int i=0; i<placeIdsNode.size(); i++){
-						place = placeIdsNode.get(i);
-						tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
-						.find(new Document("id", place.get("placeid").asText())).first();
+					if(placeIdsNode.isArray()){
 						
-						courseArrayNode.add( makeObjectNode(tmpPlace));
+						for(int i=0; i<placeIdsNode.size(); i++){
+							place = placeIdsNode.get(i);
+							tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
+							.find(new Document("id", place.get("placeid").asText())).first();
+							
+							courseArrayNode.add( makeObjectNode(tmpPlace));
+						}
 					}
+				} catch (JsonProcessingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				
+//				courseArrayNode = null;
+				placeIdsNode = null;
+				course = null;
+				
+				return root.toString();
+			}// end if
+			else{
+				return "0";
 			}
-			
-//			courseArrayNode = null;
-			placeIdsNode = null;
-			course = null;
-			
-			return root.toString();
-		}
-		else{
+		} catch(Exception e){
 			return "0";
 		}
 		
+		
 	}
 	
-	public String deletePlace(){
-		
-		
-		
-		
-		return "";
-	}
 	/*
 	 * 수정해야함 . . . .
 	 * json 방식 바꿨음 !!
@@ -196,34 +192,47 @@ public class CourseController {
 		/*
 		 * Get recommend from mining
 		 */
-		
+		Recommender tmpRcm = null;
 		for(int num=0; num<categorys.length; num++){
 			try {
 				
 				// 추천 받은 장소의 아이디를 받아온다.
-				List<RecommendedItem> recommendedList = getRecommender(categorys[num]).
-						recommend(Integer.parseInt( userId.substring(1)) , 3 );
 				
-				// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
-				if(recommendedList.size()<3){
-					// ArrayList<ObjectNode>를 반환.
-					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
+				tmpRcm = getRecommender(categorys[num]);
+				placesTaker.add(new ArrayList<ObjectNode>());
+				// 추천기가 있는 경
+				if(tmpRcm!=null){
+					List<RecommendedItem> recommendedList = tmpRcm.
+							recommend(Integer.parseInt( userId.substring(1)) , 3 );
 					
-					for(int i=0; i<recommendedList.size(); i++){
+					// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
+					if(recommendedList.size()<3){
+						// ArrayList<ObjectNode>를 반환.
+						placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
 						
-						placesTaker.
-						get(num).
-							add(
-								makeObjectNode(
-										connector.getPlaceById(
-												categorys[num], recommendedList.get(i).getItemID()+"")));
+						for(int i=0; i<recommendedList.size(); i++){
+							
+							placesTaker.
+							get(num).
+								add(
+									makeObjectNode(
+											connector.getPlaceById(
+													categorys[num], recommendedList.get(i).getItemID()+"")));
+						}
 					}
 				}
+				
+				//추천기가 없어서 평점으로만 받아오는 경우 
+				else{
+					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3));
+				}
+				
 			} catch (NumberFormatException | TasteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
+		
 		/*
 		 * Get recommend from ratings
 		 */
@@ -233,9 +242,6 @@ public class CourseController {
 		}
 		*/
 		
-		/*
-		 * find minimum
-		 */
 		
 		/*
 		 * Generate Course
@@ -261,10 +267,15 @@ public class CourseController {
 	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude, int count){
 		
 		ArrayList<ObjectNode> placeStack = new ArrayList<ObjectNode>();
+		ArrayList<String> projectionFields = new ArrayList<String>();
+		projectionFields.add("latitude");
+		projectionFields.add("longitude");
+		projectionFields.add("id");
+		projectionFields.add("ratings");
 		Document place = null;
 		// 평점순으로 정렬된 place list
 		MongoCursor<Document> allDocuments = connector.getMyCollection(connector.codeToCollection(code)).
-						find().sort(Sorts.descending("ratings")).iterator();
+						find().projection(Projections.include(projectionFields)).sort(Sorts.descending("ratings")).iterator();
 
 				// firstPlaceList.
 		while (allDocuments.hasNext()) {
@@ -276,7 +287,7 @@ public class CourseController {
 						Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 1500){
 					System.out.println("first bb");
 					if(placeStack.size()<count){
-						placeStack.add(makeObjectNode(place));
+						placeStack.add(makeObjectNode(connector.getPlaceById(code, place.getString("id"))));
 					}
 					else
 						break;
