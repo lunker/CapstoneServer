@@ -304,8 +304,9 @@ public class DatabaseConnector {
 			// (1)
 			Document filter = new Document();
 			filter.append("placeid", review.getPlaceId());
+			
 			Document update = new Document();
-			update.append("ratings", review.getRating());
+			update.append("ratings", Double.parseDouble(review.getRating()));
 			update.append("date", review.getDate());
 			getMyCollection(review.getUserId()).findOneAndUpdate(filter, new Document("$set",update));
 			

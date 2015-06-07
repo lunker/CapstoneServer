@@ -65,6 +65,7 @@ public class CourseController {
 		System.out.println("[LOAD_COURSE] " + userId);
 		Document course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
 		
+		
 		String placeIds = course.getString("placeids");
 		System.out.println("before split : "+placeIds);
 		
@@ -72,34 +73,40 @@ public class CourseController {
 		ArrayNode courseArrayNode = root.putArray("course");
 		JsonNode placeIdsNode = null;
 		
-		try {
-			placeIdsNode = mapper.readTree(placeIds);
-			JsonNode place = null;
-			Document tmpPlace = null;
-			
-			if(placeIdsNode.isArray()){
+		if(placeIds!=null){
+			try {
+				placeIdsNode = mapper.readTree(placeIds);
+				JsonNode place = null;
+				Document tmpPlace = null;
 				
-				for(int i=0; i<placeIdsNode.size(); i++){
-					place = placeIdsNode.get(i);
-					tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
-					.find(new Document("id", place.get("placeid").asText())).first();
+				if(placeIdsNode.isArray()){
 					
-					courseArrayNode.add( makeObjectNode(tmpPlace));
+					for(int i=0; i<placeIdsNode.size(); i++){
+						place = placeIdsNode.get(i);
+						tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
+						.find(new Document("id", place.get("placeid").asText())).first();
+						
+						courseArrayNode.add( makeObjectNode(tmpPlace));
+					}
 				}
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+//			courseArrayNode = null;
+			placeIdsNode = null;
+			course = null;
+			
+			return root.toString();
+		}
+		else{
+			return "0";
 		}
 		
-//		courseArrayNode = null;
-		placeIdsNode = null;
-		course = null;
-		
-		return root.toString();
 	}
 	
 	public String deletePlace(){

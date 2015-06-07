@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.mahout.cf.taste.common.TasteException;
+import org.apache.mahout.cf.taste.impl.model.file.FileDataModel;
 import org.apache.mahout.cf.taste.impl.neighborhood.NearestNUserNeighborhood;
 import org.apache.mahout.cf.taste.impl.recommender.GenericUserBasedRecommender;
 import org.apache.mahout.cf.taste.impl.similarity.PearsonCorrelationSimilarity;
-import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
@@ -81,26 +81,25 @@ public class ModelGenerator {
 	}// end method
 
 	static Recommender generate(String path) {
-		MYFileDataModel dataModel;
+		FileDataModel dataModel;
 
 		try {
-			dataModel = new MYFileDataModel(new File(path));
+			dataModel = new FileDataModel(new File(path));
 
-			DataModel model = dataModel.getDataModel();
-
+//			DataModel model = dataModel.getDataModel();
 			// dataModel의 인자를 getModel로 읽어들려 PearsonCorrelation에 의한 유사도 측정값음
 			// similarity에 저장한다.
 			UserSimilarity similarity = new PearsonCorrelationSimilarity(
-					dataModel.getDataModel());
+					dataModel);
 			UserNeighborhood neighborhood = new NearestNUserNeighborhood(2,
-					similarity, model);
+					similarity, dataModel);
 
 			// 추천기 생성.
-			Recommender recommender = new GenericUserBasedRecommender(model,
+			Recommender recommender = new GenericUserBasedRecommender(dataModel,
 					neighborhood, similarity);
 			return recommender;
 			// recommender.recommend 에서 앞에 파라미터가 유저 id, 뒤에 파라미터가 추천갯수
-
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

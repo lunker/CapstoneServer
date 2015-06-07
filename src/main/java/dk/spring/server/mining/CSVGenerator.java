@@ -47,8 +47,9 @@ public class CSVGenerator {
 		MongoCursor<Document> allReviews = connector.getMyCollection("review").find().iterator();
 		Document review = null;
 		String content = "";
+		
 		int userid = 0;
-		String placeid = "";
+		long placeid = 0;
 		double ratings = 0.0;
 		
 		while(allReviews.hasNext()){
@@ -57,9 +58,9 @@ public class CSVGenerator {
 //			content+=review.getString("userid")+","+review.getString("placeid")+","+review.get
 			
 			userid = Integer.parseInt(review.getString("userid").substring(1));
-			placeid = review.getString("placeid");
+			placeid = Long.parseLong(review.getString("placeid"));
 			ratings = review.getDouble("ratings");
-			content = userid+","+placeid+","+ratings;
+			content = userid+","+placeid+","+ratings+"\n";
 			// 식당 
 			if(review.getString("code").equals("FD6")){
 				try {
