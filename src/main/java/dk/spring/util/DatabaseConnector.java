@@ -140,11 +140,9 @@ public class DatabaseConnector {
 	
 	public Document getPlaceById(String code, String placeid){
 		
-		
 		Document place = null;
 		
 		place = getMyCollection(codeToCollection(code)).find(new Document("id", placeid)).first();
-		
 		
 		return place;
 		

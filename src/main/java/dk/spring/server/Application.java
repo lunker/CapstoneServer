@@ -21,7 +21,7 @@ public class Application {
 		log.error("adf");
 		
 //		NetWork nw = new NetWork();
-//		nw.start();	
+//		nw.start();		
 		
 //		GoogleNetwork gn = new GoogleNetwork();
 //		gn.start();
@@ -30,8 +30,8 @@ public class Application {
 //		sr.start();
 		
 		
-		CSVGenerator csv = new CSVGenerator();
-		csv.start();
+//		CSVGenerator csv = new CSVGenerator();
+//		csv.start();
 		
 	}
 	

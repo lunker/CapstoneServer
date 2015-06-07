@@ -359,8 +359,10 @@ public class CourseController {
 	public String recommendCourseByGPS(
 			@RequestParam(value="latitude")String latitude,
 			@RequestParam(value="longitude")String longitude,
-			@RequestParam(value="categorys")String categorys){
+			@RequestParam(value="userid", defaultValue="1", required=false) String userId
+			){
 		
+		/*
 		String collection = connector.codeToCollection(categorys);
 		ArrayList<String> nearPlacesList = new ArrayList<String>();
 		
@@ -380,7 +382,98 @@ public class CourseController {
 		
 		// mining~
 		// run CF
-		return "";
+		 * */
+	
+		logger.info("[COURSE_RECOMMEND_GPS] in course recommend");
+		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
+		
+		/*
+		 * 
+		 * Get user category
+		 */
+		
+		// 1 코스에 사용자가 설정한 카테고리 수 만큼 장소가 들어간다.
+		// 전체적인 코스는 3개 
+		
+		String preferCategorys = connector.getMyCollection(userId).find(new Document("id", userId)).first().getString("prefercategory");
+		System.out.println("categorys"+preferCategorys);
+		String[] categorys = preferCategorys.split(",");
+		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
+		
+		/*
+		 * Get recommend from mining
+		 */
+		Recommender tmpRcm = null;
+		for(int num=0; num<categorys.length; num++){
+			try {
+				
+				// 추천 받은 장소의 아이디를 받아온다.
+				
+				tmpRcm = getRecommender(categorys[num]);
+				placesTaker.add(new ArrayList<ObjectNode>());
+				// 추천기가 있는 경
+				if(tmpRcm!=null){
+					List<RecommendedItem> recommendedList = tmpRcm.
+							recommend(Integer.parseInt( userId.substring(1)) , 3 );
+					
+					// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
+					if(recommendedList.size()<3){
+						// ArrayList<ObjectNode>를 반환.
+						placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
+						
+						for(int i=0; i<recommendedList.size(); i++){
+							
+							placesTaker.
+							get(num).
+								add(
+									makeObjectNode(
+											connector.getPlaceById(
+													categorys[num], recommendedList.get(i).getItemID()+"")));
+						}
+					}
+				}
+				
+				//추천기가 없어서 평점으로만 받아오는 경우 
+				else{
+					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3));
+				}
+				
+			} catch (NumberFormatException | TasteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		/*
+		 * Get recommend from ratings
+		 */
+		/*
+		for(int num=0; num<categorys.length; num++){
+			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
+		}
+		*/
+		
+		
+		/*
+		 * Generate Course
+		 */
+		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		ArrayNode courseArrayNode = null;
+		for(int course=0; course<3; course++){
+			 courseArrayNode = root.putArray("course"+course);
+			for(int num=0; num<categorys.length; num++){
+				courseArrayNode.add(placesTaker.get(num).get(course));
+			}
+		}
+		
+//		root.putArray("course1").add(placesTaker.get().get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
+//		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
+//		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
+		placesTaker = null;
+		
+		return root.toString();
+		
 	}
 	
 	/*

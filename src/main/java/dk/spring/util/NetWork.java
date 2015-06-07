@@ -95,20 +95,20 @@ public class NetWork extends Thread{
 		// lat 증가 -> 북으로 
 		
 		// 현재 37.756207,126.927728 까지 됐음.
-		//37.551449, 126.962580
-		latitude = 37.551449;
-		longitude = 126.962580;
+		//37.236848, 126.969955
+		latitude = 37.236848;
+		longitude = 126.969955;
 		// south to north 
-		for(int i = 0; i<6; i++){
+		for(int i = 0; i<12; i++){
 			
 			// move 2km 
 			latitude += 0.008;
 			// west to east
-			for(int s=0; s<15; s++){
+			for(int s=0; s<12; s++){
 				longitude+=0.008;
 				getAll();
 			}
-			longitude=126.962580;
+			longitude=126.969955;
 		}
 		
 	}// end method
