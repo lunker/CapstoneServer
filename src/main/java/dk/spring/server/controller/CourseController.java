@@ -177,7 +177,6 @@ public class CourseController {
 		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
 		
 		/*
-		 * 
 		 * Get user category
 		 */
 		
@@ -252,6 +251,7 @@ public class CourseController {
 		for(int course=0; course<3; course++){
 			 courseArrayNode = root.putArray("course"+course);
 			for(int num=0; num<categorys.length; num++){
+				//error..
 				courseArrayNode.add(placesTaker.get(num).get(course));
 			}
 		}
@@ -476,11 +476,6 @@ public class CourseController {
 		
 	}
 	
-	/*
-	 * 나중에 ~
-	 */
-	
-	
 	@RequestMapping(value="/courseTheme")
 	public String recommedCourseByTheme(
 			
@@ -496,10 +491,133 @@ public class CourseController {
 		return "";
 	}
 	
-	@RequestMapping(value="/courseCondition")
-	public String recommendCourseByCondition(){
+	@RequestMapping(value="/courseCondition", method=RequestMethod.GET)
+	public String recommendCourseByCondition(
+			@RequestParam(value="latitude", defaultValue="1", required=false) String latitude,
+			@RequestParam(value="longitude", defaultValue="1", required=false) String longitude,
+			@RequestParam(value="placeid", defaultValue="1", required=false) String placeId,
+			@RequestParam(value="code", defaultValue="1", required=false) String code,
+			@RequestParam(value="userid", defaultValue="1", required=false) String userId
+			){
+
+		logger.info("[COURSE_RECOMMEND_CONDITION] in course recommend");
 		
-		return "";
+		/*
+		 * Get user category
+		 */
+		
+		// 1 코스에 사용자가 설정한 카테고리 수 만큼 장소가 들어간다.
+		// 전체적인 코스는 3개 
+		
+		String preferCategorys = connector.getMyCollection(userId).find(new Document("id", userId)).first().getString("prefercategory");
+		System.out.println("categorys"+preferCategorys);
+		String[] categorys = preferCategorys.split(",");
+		int length = categorys.length;
+		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
+		
+		/*
+		 * Get recommend from mining
+		 */
+		Recommender tmpRcm = null;
+		boolean isHere = false;
+		for(int num=0; num<length; num++){
+			if(categorys[num].equals(code)){
+				isHere = true;
+			}
+		}
+		
+		// 선택한 장소가 유저 선호하는 카테고리에 없을때 
+		// 
+		// 추천 시작 
+		for(int num=0; num<length; num++){
+			
+			try {
+				
+				// 추천 받은 장소의 아이디를 받아온다.
+				placesTaker.add(new ArrayList<ObjectNode>());
+				if(categorys[num].equals(code)){
+					ObjectNode node = makeObjectNode(connector.getPlaceById(code, placeId));
+					placesTaker.add(new ArrayList<ObjectNode>());
+					placesTaker.get(num).add(node);
+					placesTaker.get(num).add(node);
+					placesTaker.get(num).add(node);
+					continue;
+				}
+				tmpRcm = getRecommender(categorys[num]);
+				
+				// 추천기가 있는 경우 
+				if(tmpRcm!=null){
+					List<RecommendedItem> recommendedList = tmpRcm.
+							recommend(Integer.parseInt( userId.substring(1)) , 3 );
+					
+					// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
+					if(recommendedList.size()<3){
+						// ArrayList<ObjectNode>를 반환.
+						placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
+						
+						for(int i=0; i<recommendedList.size(); i++){
+							
+							placesTaker.
+							get(num).
+								add(
+									makeObjectNode(
+											connector.getPlaceById(
+													categorys[num], recommendedList.get(i).getItemID()+"")));
+						}
+					}
+				}
+				
+				//추천기가 없어서 평점으로만 받아오는 경우 
+				else{
+					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3));
+				}
+				
+			} catch (NumberFormatException | TasteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}// end for
+		
+		// 선택한 장소의 카테고리가 유저의 선호도에 없을때, 
+		// 별도로 추가한다 
+		if(!isHere){
+			length++;
+			ObjectNode node = makeObjectNode(connector.getPlaceById(code, placeId));
+			placesTaker.add(new ArrayList<ObjectNode>());
+			placesTaker.get(length).add(node);
+			placesTaker.get(length).add(node);
+			placesTaker.get(length).add(node);
+		}
+		
+		/*
+		 * Get recommend from ratings
+		 */
+		/*
+		for(int num=0; num<categorys.length; num++){
+			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
+		}
+		*/
+		
+		
+		/*
+		 * Generate Course
+		 */
+		
+		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		ArrayNode courseArrayNode = null;
+		for(int course=0; course<3; course++){
+			 courseArrayNode = root.putArray("course"+course);
+			for(int num=0; num<length; num++){
+				courseArrayNode.add(placesTaker.get(num).get(course));
+			}
+		}
+		
+//		root.putArray("course1").add(placesTaker.get().get(0)).add(placeSecondStack.get(0)).add(placeThirdStack.get(0));
+//		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
+//		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
+		placesTaker = null;
+		
+		return root.toString();
 	}
 	
 	public ObjectNode makeObjectNode(Document place){
@@ -538,7 +656,6 @@ public class CourseController {
 
 		return dist;
 	}
-	
 	
 }
 

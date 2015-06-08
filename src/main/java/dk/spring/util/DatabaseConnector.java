@@ -282,23 +282,21 @@ public class DatabaseConnector {
 	public String saveReview(ReviewModel review){
 		
 		/*
-		 * 
 		 * 이전에 사용자가 평가를 했었는지 봐야함. 
 		 * 평가는 남겼으면 이전 평가를 지우고 
 		 * 새로운 평가를 남겨야 .
-		 * 
 		 */
+		
+		logger.info("[SAVE_REVIEW] ");
 		
 		Document doc = getMyCollection(review.getUserId()).find(new Document("placeid", review.getPlaceId())).first();
 		
 		// 이미 평가를 한 경우 
 		if(doc!=null){
-			
-			
+			System.out.println("[SAVE_REVIEW] already reviewed ");
 			// 1. userid collection 수정
 			// 2. review collection 수정 
 			// 3. 장소정보 collection 수정 
-			
 			// (1)
 			Document filter = new Document();
 			filter.append("placeid", review.getPlaceId());
@@ -310,15 +308,32 @@ public class DatabaseConnector {
 			
 			// (2)
 			getMyCollection("review").findOneAndUpdate(
-					new Document("placeid",review.getPlaceId()).
-					append("userid", review.getUserId()), new Document("$set", update));
-			
-			// (3)
-			getMyCollection(codeToCollection(review.getCode())).findOneAndUpdate(
-					new Document("$elemmatch", new Document("userid", review.getUserId())), 
+					// filter
+					new Document("placeid",review.getPlaceId()).append("userid", review.getUserId()),
+					// content
 					new Document("$set", update));
 			
-			return "0";
+			// (3)
+			
+			Document reviewDoc = new Document();
+			
+			reviewDoc.append("ratings", Double.parseDouble(review.getRating()));
+			reviewDoc.append("date", review.getDate());
+			reviewDoc.append("userid", review.getUserId());
+			reviewDoc.append("placeid", review.getPlaceId());
+//			reviewDoc.append(key, value);
+					
+			// 이미 평가 했던 적이 있는 경우 
+			getMyCollection(codeToCollection(review.getCode())).findOneAndUpdate(
+					
+					// filter
+					new Document("id",review.getPlaceId()).append("review.userid", review.getUserId()),
+					// update 
+//					new Document("$elemMatch", new Document("review", new Document("userid",review.getUserId())).
+					new Document("$set", new Document("review.$.ratings", Double.parseDouble(review.getRating())).append("review.$.date", review.getDate()))
+					);
+					;
+			return "1";
 		
 		}
 		// 아직 평가를 하지 않은 경우 
@@ -326,6 +341,8 @@ public class DatabaseConnector {
 			/*
 			 * 이전에 평가를 안한 경우.
 			 */
+			
+			System.out.println("[SAVE_REVIEW] reviewed not yet");
 			Document reviewDoc = new Document();
 			
 			//error 
@@ -361,7 +378,6 @@ public class DatabaseConnector {
 			reviewDoc.append("reviewid", reviewId);
 			getMyCollection(review.getUserId()).insertOne(reviewDoc);
 
-			
 			/*
 			 * 장소 정보에 평점 갱신 
 			 */
@@ -378,7 +394,6 @@ public class DatabaseConnector {
 			int currentCount = result.getInteger("count", 0);
 			double currentRatings = result.getDouble("ratings");
 			
-			
 			double newRatings = (currentRatings + Double.parseDouble(review.getRating())) / (currentCount+1);
 			
 			update.append("$inc", new Document("count",1));
@@ -388,13 +403,13 @@ public class DatabaseConnector {
 			/*
 			 * 해당 장소에 리뷰 정보 추가 
 			 */
+			
 			reviewDoc.remove("code");
 			update.append("$push", new Document("review", reviewDoc));
 			System.out.println(review.getCode());
 			
 			System.out.println( "colleciton" + collection.toString());
 			collection.findOneAndUpdate(new Document("id",review.getPlaceId()), update);
-			
 			
 			return "1";
 		}
