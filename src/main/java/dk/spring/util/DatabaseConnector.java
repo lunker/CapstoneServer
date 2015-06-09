@@ -298,15 +298,24 @@ public class DatabaseConnector {
 			// 2. review collection 수정 
 			// 3. 장소정보 collection 수정 
 			// (1)
+			
+			// get user before ratings
+			int beforeRatings = getMyCollection(review.getUserId()).find(new Document("placeid", review.getPlaceId())).first().getInteger("ratings");
 			Document filter = new Document();
 			filter.append("placeid", review.getPlaceId());
 			
+			
+			// update user ratings 
 			Document update = new Document();
 			update.append("ratings", Double.parseDouble(review.getRating()));
 			update.append("date", review.getDate());
 			getMyCollection(review.getUserId()).findOneAndUpdate(filter, new Document("$set",update));
 			
+			
+			
+			
 			// (2)
+			// review collection에 업데이트 
 			getMyCollection("review").findOneAndUpdate(
 					// filter
 					new Document("placeid",review.getPlaceId()).append("userid", review.getUserId()),
@@ -314,7 +323,7 @@ public class DatabaseConnector {
 					new Document("$set", update));
 			
 			// (3)
-			
+			// update place collection
 			Document reviewDoc = new Document();
 			
 			reviewDoc.append("ratings", Double.parseDouble(review.getRating()));
@@ -332,7 +341,21 @@ public class DatabaseConnector {
 //					new Document("$elemMatch", new Document("review", new Document("userid",review.getUserId())).
 					new Document("$set", new Document("review.$.ratings", Double.parseDouble(review.getRating())).append("review.$.date", review.getDate()))
 					);
-					;
+			
+			
+			
+			Document targetPlace = getMyCollection(codeToCollection(review.getCode())).find(new Document("id", review.getPlaceId())).first();
+			
+			double ratings = targetPlace.getDouble("ratings");
+			int count = targetPlace.getInteger("count");
+			
+			
+			double newRatings = (((ratings * count) - beforeRatings) + Double.parseDouble(review.getRating()) ) /count;
+			getMyCollection(codeToCollection(review.getCode())).
+			findOneAndUpdate( new Document("id", review.getPlaceId()), new Document("$set", new Document("ratings", newRatings)));
+			
+			
+			
 			return "1";
 		
 		}

@@ -28,7 +28,7 @@ public class ServerClock extends Thread{
 		csvGenerator = new CSVGenerator();
 		while(true){
 			try {
-				
+				csvGenerator.start();
 //				System.out.println("[SERVER_CLOCK] sleep . . .");
 				logger.info("[SERVER_CLOCK] sleep . . .");
 				Thread.sleep(60*MINUTE);
@@ -37,7 +37,7 @@ public class ServerClock extends Thread{
 				
 //				System.out.println("[SERVER_CLOCK] " + time + " generate csv");
 				logger.info("[SERVER_CLOCK] " + time + " generate csv");
-				csvGenerator.start();
+				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

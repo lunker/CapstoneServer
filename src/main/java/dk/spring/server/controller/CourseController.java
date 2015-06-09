@@ -65,6 +65,9 @@ public class CourseController {
 		Document course = null;
 		try{
 			course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
+			
+			
+			// 마이코스에 저장한 장소들의 아이디 
 			String placeIds = course.getString("placeids");
 			System.out.println("before split : "+placeIds);
 			
@@ -77,15 +80,29 @@ public class CourseController {
 					placeIdsNode = mapper.readTree(placeIds);
 					JsonNode place = null;
 					Document tmpPlace = null;
-					
+					String placeId = "";
+					double userRatings = -1;
 					if(placeIdsNode.isArray()){
 						
 						for(int i=0; i<placeIdsNode.size(); i++){
+							userRatings = -1;
+							
 							place = placeIdsNode.get(i);
+							placeId = place.get("placeid").asText();
+							
+							/*
+							 * 사용자가 해당 장소에 평가한 평점을 가져온다 
+							 */
+							Document reviewedPlace = connector.getMyCollection(userId).find(new Document("placeid", placeId)).first();
+							
+							if(reviewedPlace!=null)
+								userRatings = reviewedPlace.getDouble("ratings");
+							
+							
 							tmpPlace = connector.getMyCollection(connector.codeToCollection(place.get("code").asText()))
 							.find(new Document("id", place.get("placeid").asText())).first();
 							
-							courseArrayNode.add( makeObjectNode(tmpPlace));
+							courseArrayNode.add( makeObjectNode(tmpPlace.append("userRatings", userRatings)));
 						}
 					}
 				} catch (JsonProcessingException e) {
@@ -639,6 +656,10 @@ public class CourseController {
 		tmp.put("addressBCode", place.getString("addressBCode"));
 		tmp.put("ratings", place.getDouble("ratings"));
 		tmp.put("code",place.getString("code"));
+		
+		
+		if(place.getDouble("ratings")!=null)
+			tmp.put("userRatings", place.getDouble("userRatings"));
 		
 		return tmp;
 	}
