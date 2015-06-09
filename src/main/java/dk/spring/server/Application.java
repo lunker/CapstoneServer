@@ -18,8 +18,7 @@ public class Application {
 		SpringApplication.run(Application.class, args);
 		
 		Logger log = Logger.getLogger(Application.class.getName());
-		log.info("adf");
-		log.error("adf");
+		log.info("[SERVER] START SERVER");
 		
 //		NetWork nw = new NetWork();
 //		nw.start();		
@@ -29,9 +28,6 @@ public class Application {
 		
 //		SetRating sr = new SetRating();
 //		sr.start();
-		
-		
-		
 		
 //		CSVGenerator csv = new CSVGenerator();
 //		csv.

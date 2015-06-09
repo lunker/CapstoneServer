@@ -61,7 +61,8 @@ public class CourseController {
 	public String loadCourse(
 			@RequestParam(value="userid")String userId
 			){
-		System.out.println("[LOAD_COURSE] " + userId);
+		logger.info("[LOAD_COURSE] REQUEST : " + userId);
+//		System.out.println("[LOAD_COURSE] " + userId);
 		Document course = null;
 		try{
 			course = connector.getMyCollection(userId).find(new Document("id",userId)).first();
@@ -141,8 +142,8 @@ public class CourseController {
 			@RequestBody CourseModel course
 			){
 		
-		System.out.println("userid:"+ course.getUserId() + "placeids" + course.getPlaceIds());
-		
+//		System.out.println("userid:"+ course.getUserId() + "placeids" + course.getPlaceIds());
+		logger.info("[SAVE_COURSE] REQEUST : " + course.getUserId());
 		/*
 		int totalCourses = 0;
 		
@@ -190,8 +191,8 @@ public class CourseController {
 			@RequestParam(value="userid", defaultValue="1", required=false) String userId
 			){
 
-		logger.info("[COURSE_RECOMMEND] in course recommend");
-		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
+		logger.info("[COURSE_RECOMMEND] REQUEST : " + userId);
+//		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
 		
 		/*
 		 * Get user category
@@ -257,7 +258,6 @@ public class CourseController {
 			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
 		}
 		*/
-		
 		
 		/*
 		 * Generate Course

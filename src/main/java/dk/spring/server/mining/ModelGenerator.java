@@ -27,8 +27,8 @@ public class ModelGenerator {
 	static String CSV_REST = "csv_rest.csv";
 	static String CSV_TOUR = "csv_tour.csv";
 	static String CSV_CULTURE = "csv_culture.csv";
-
 	
+	/*
 	static{
 		
 		for (int i = 0; i < 5; i++) {
@@ -44,38 +44,22 @@ public class ModelGenerator {
 			}
 		}// end for 
 	}
+	*/
 	
-	public static Recommender getFoodRcm() {
-		return foodRcm;
-	}
-
-	public static Recommender getCafeRcm() {
-		return cafeRcm;
-	}
-
-	public static Recommender getRestRcm() {
-		return restRcm;
-	}
-
-	public static Recommender getTourRcm() {
-		return tourRcm;
-	}
-
-	public static Recommender getCultureRcm() {
-		return cultureRcm;
-	}
-
+	
 	public void start() {
+		System.out.println("[MODEL_GENERATOR] initializing . . .");
+		
 		for (int i = 0; i < 5; i++) {
 			
 			switch(i){
-			
-			case 0: cafeRcm = generate(PATH+"/"+CSV_CAFE); break;
-			case 1: cultureRcm = generate(PATH+"/"+CSV_CULTURE);break;
-			case 2: foodRcm = generate(PATH+"/"+CSV_FOOD);break;
-			case 3: restRcm = generate(PATH+"/"+CSV_REST);break;
-			case 4: tourRcm = generate(PATH+"/"+CSV_TOUR);break;
-			
+				
+				case 0: cafeRcm = generate(PATH+"/"+CSV_CAFE); break;
+				case 1: cultureRcm = generate(PATH+"/"+CSV_CULTURE);break;
+				case 2: foodRcm = generate(PATH+"/"+CSV_FOOD);break;
+				case 3: restRcm = generate(PATH+"/"+CSV_REST);break;
+				case 4: tourRcm = generate(PATH+"/"+CSV_TOUR);break;
+				
 			}
 		}// end for 
 	}// end method
@@ -116,4 +100,27 @@ public class ModelGenerator {
 
 	}// end method
 
+	
+	public static Recommender getFoodRcm() {
+		return foodRcm;
+	}
+
+	public static Recommender getCafeRcm() {
+		return cafeRcm;
+	}
+
+	public static Recommender getRestRcm() {
+		return restRcm;
+	}
+
+	public static Recommender getTourRcm() {
+		return tourRcm;
+	}
+
+	public static Recommender getCultureRcm() {
+		return cultureRcm;
+	}
+
+	
+	
 }
