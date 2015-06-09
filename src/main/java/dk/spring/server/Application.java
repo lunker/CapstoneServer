@@ -7,6 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import dk.spring.server.mining.CSVGenerator;
+import dk.spring.server.mining.ServerClock;
 import dk.spring.util.NetWork;
 
 @Configuration
@@ -30,8 +31,12 @@ public class Application {
 //		sr.start();
 		
 		
+		
+		
 //		CSVGenerator csv = new CSVGenerator();
-//		csv.start();
+//		csv.
+		ServerClock clock = new ServerClock();
+		clock.start();
 		
 	}
 	

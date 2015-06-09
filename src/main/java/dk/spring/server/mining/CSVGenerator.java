@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
 import org.bson.Document;
 
 import com.mongodb.client.MongoCursor;
@@ -40,9 +41,9 @@ public class CSVGenerator {
 	
 	
 	private DatabaseConnector connector = DBFactory.getConnector();
-	
+	private Logger logger = Logger.getLogger(CSVGenerator.class.getName());
 	public void start(){
-		
+		logger.info("[CSV_GENERATOR] start generate");
 		fileOpen();
 		MongoCursor<Document> allReviews = connector.getMyCollection("review").find().iterator();
 		Document review = null;
@@ -113,6 +114,7 @@ public class CSVGenerator {
 	}// end method 
 	
 	public void fileOpen(){
+		logger.info("[CSV_GENERATOR] file open");
 		try {
 			
 			fFood = new File(PATH+"/"+CSV_FOOD);
@@ -137,7 +139,6 @@ public class CSVGenerator {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 			
 			fosFood = new FileOutputStream(fFood);
 			fosCafe = new FileOutputStream(fCafe);
