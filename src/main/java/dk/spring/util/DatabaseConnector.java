@@ -300,7 +300,7 @@ public class DatabaseConnector {
 			// (1)
 			
 			// get user before ratings
-			int beforeRatings = getMyCollection(review.getUserId()).find(new Document("placeid", review.getPlaceId())).first().getInteger("ratings");
+			double beforeRatings = getMyCollection(review.getUserId()).find(new Document("placeid", review.getPlaceId())).first().getDouble("ratings");
 			Document filter = new Document();
 			filter.append("placeid", review.getPlaceId());
 			

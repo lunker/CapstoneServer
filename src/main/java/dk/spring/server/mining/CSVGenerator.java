@@ -42,6 +42,7 @@ public class CSVGenerator {
 	
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private Logger logger = Logger.getLogger(CSVGenerator.class.getName());
+	
 	public void start(){
 		logger.info("[CSV_GENERATOR] start generate");
 		fileOpen();

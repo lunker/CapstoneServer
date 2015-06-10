@@ -19,14 +19,6 @@ public class ServerClock extends Thread{
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		/*
-		System.out.println(format.format(Calendar.getInstance().getTime()));
-		String time = format.format(Calendar.getInstance().getTime());
-		
-		String[] times = time.split(":");
-		
-		currentHour = Integer.parseInt(times[0]);
-		*/
 		
 		csvGenerator = new CSVGenerator();
 		modelGenerator = new ModelGenerator();
@@ -39,7 +31,7 @@ public class ServerClock extends Thread{
 				modelGenerator.start();
 //				System.out.println("[SERVER_CLOCK] sleep . . .");
 				logger.info("[SERVER_CLOCK] sleep . . .");
-				Thread.sleep(10*MINUTE);// 10분에 한번씩 
+				Thread.sleep(2*MINUTE);// 2분에 한번씩 
 				
 //				time = format.format(Calendar.getInstance().getTime());
 				

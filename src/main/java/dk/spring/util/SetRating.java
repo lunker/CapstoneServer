@@ -26,7 +26,7 @@ public class SetRating extends Thread {
 				collection = connector.codeToCollection(Constant.DAUM_CODE_CAFE);
 			} 
 			else if (i == 1) {
-//				collection = connector.codeToCollection(Constant.DAUM_CODE_CULTURE);
+				collection = connector.codeToCollection(Constant.DAUM_CODE_CULTURE);
 			} 
 			else if (i == 2) {
 				collection = connector.codeToCollection(Constant.DAUM_CODE_FOOD);
@@ -48,42 +48,44 @@ public class SetRating extends Thread {
 				
 				doc = cursor.next();
 				
-				// initialize count
-					update = new Document();
-					update.append("$set", new Document("count",1));
-					
-					allRows.findOneAndUpdate(new Document("id",doc.getString("id")), update);
-				
-				// initialize ratings
-				
-					
-					// 어떤 장소들은 rating으로 입력..ㅠㅠㅠㅠ 
 					try{
-						if(doc.getDouble("ratings") != 2.5){
+						// ratings가 없을경
+						if(doc.getDouble("ratings")==null){
 							
+							System.out.println("[UPDATE DB] ratings");
 							update = new Document();
 							update.append("$set", new Document("ratings", 2.5));
-							allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update );
+							
+							allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update);
 						}
+						
+						// count가 없을경
+						if(doc.getInteger("count")==null){
+							System.out.println("[UPDATE DB] count");
+							
+							
+							update = new Document();
+							update.append("$set", new Document("count",1));
+							
+							allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update);
+						}
+						
 					} catch(ClassCastException cce){
 						cce.printStackTrace();
 						
-						update = new Document();
-						update.append("$set", new Document("ratings", 2.5));
-						allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update );
+//						update = new Document();
+//						update.append("$set", new Document("ratings", 2.5));
+//						allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update );
 						
 					} catch (Exception e) {
-						update = new Document();
-						update.append("$set", new Document("ratings", 2.5));
-						allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update );
+						e.printStackTrace();
+//						update = new Document();
+//						update.append("$set", new Document("ratings", 2.5));
+//						allRows.findOneAndUpdate(new Document("id", doc.getString("id")), update );
 						
 					}finally{
 						;
 					}
-				
-//					allRows.d
-				
-				
 			}
 			
 		}// end for

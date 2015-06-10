@@ -39,8 +39,6 @@ public class PlaceController {
 		else
 			return placeInfo;
 	}
-	
-	
 
 	@RequestMapping(value = "/review", method = RequestMethod.GET)
 	public String getReviewInPlace(@RequestParam(value="placeid")String placeId) {
@@ -87,6 +85,4 @@ public class PlaceController {
 		
 		return result;
 	}
-	
-	
 }

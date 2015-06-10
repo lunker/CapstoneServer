@@ -130,11 +130,6 @@ public class CourseController {
 		
 	}
 	
-	/*
-	 * 수정해야함 . . . .
-	 * json 방식 바꿨음 !!
-	 */
-	
 	@RequestMapping(value="/savecourse", method=RequestMethod.POST)
 	public String saveCourse(
 //			@RequestParam(value="userid", defaultValue="1", required=false) String userId,
@@ -180,10 +175,6 @@ public class CourseController {
 		return "1";
 	}
 	
-	/*
-	 * 임시땜빵용 !
-	 */
-	
 	@RequestMapping(value = "/course", method=RequestMethod.GET)
 	public String recommendCourse(
 			@RequestParam(value="latitude", defaultValue="1", required=false)String latitude, 
@@ -192,7 +183,6 @@ public class CourseController {
 			){
 
 		logger.info("[COURSE_RECOMMEND] REQUEST : " + userId);
-//		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
 		
 		/*
 		 * Get user category
@@ -210,11 +200,12 @@ public class CourseController {
 		 * Get recommend from mining
 		 */
 		Recommender tmpRcm = null;
+		
+		// 사용자가 저장한 카테고리 정보 
 		for(int num=0; num<categorys.length; num++){
 			try {
 				
-				// 추천 받은 장소의 아이디를 받아온다.
-				
+				// 해당 카테고리의 추천기를 가져온다 
 				tmpRcm = getRecommender(categorys[num]);
 				placesTaker.add(new ArrayList<ObjectNode>());
 				// 추천기가 있는 경
@@ -237,6 +228,17 @@ public class CourseController {
 													categorys[num], recommendedList.get(i).getItemID()+"")));
 						}
 					}
+					else if(recommendedList.size()==3){
+						for(int i=0; i<recommendedList.size(); i++){
+							
+							placesTaker.
+							get(num).
+								add(
+									makeObjectNode(
+											connector.getPlaceById(
+													categorys[num], recommendedList.get(i).getItemID()+"")));
+						}
+					}
 				}
 				
 				//추천기가 없어서 평점으로만 받아오는 경우 
@@ -249,16 +251,7 @@ public class CourseController {
 				e.printStackTrace();
 			}
 		}
-		
-		/*
-		 * Get recommend from ratings
-		 */
-		/*
-		for(int num=0; num<categorys.length; num++){
-			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
-		}
-		*/
-		
+	
 		/*
 		 * Generate Course
 		 */
@@ -315,34 +308,6 @@ public class CourseController {
 			}
 		}// end while
 				
-		/*
-		if(placeStack.size()<=3){
-//			allDocuments = connector.getMyCollection(connector.codeToCollection(code)).find().sort(Sorts.descending("ratings")).iterator();
-//			allDocuments.
-			while (allDocuments.hasNext()) {
-				place = allDocuments.next();
-						
-				try{
-					if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-							Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 3500){
-						System.out.println("thr bb");
-								
-						if(placeStack.size()<=3){
-							for(int i=0; i<placeStack.size(); i++){
-								if( !placeStack.get(i).get("title").equals(place.getString("title")))
-									placeStack.add(makeObjectNode(place));
-							}
-						}
-						else
-							break;
-					}
-				} catch(Exception e){
-					System.out.println("error in third place");
-					continue;
-				}
-			}// end while
-		}// end if
-		*/
 
 		place = null;
 		allDocuments = null;
@@ -353,6 +318,8 @@ public class CourseController {
 		
 		Recommender rcm = null;
 		
+		
+		// 식당 
 		if(category.equals("FD6")){
 			rcm = ModelGenerator.getFoodRcm();
 		}
@@ -379,27 +346,6 @@ public class CourseController {
 			@RequestParam(value="userid", defaultValue="1", required=false) String userId
 			){
 		
-		/*
-		String collection = connector.codeToCollection(categorys);
-		ArrayList<String> nearPlacesList = new ArrayList<String>();
-		
-		MongoCursor<Document> allPlacesInColleciton = connector.getMyCollection(collection).find().iterator();
-		
-		while (allPlacesInColleciton.hasNext()) {
-			Document place = allPlacesInColleciton.next();
-			
-			// 인접한 곳에 있는 장소일경우
-			// 평가 정보를 가져온다 
-			if(distFrom(Float.parseFloat(latitude), Float.parseFloat(longitude), 
-					Float.parseFloat(place.getString("latitude")), Float.parseFloat(place.getString("longitude"))) <= 10000){
-				
-				System.out.println(place.get("review"));
-			}
-		}// end while
-		
-		// mining~
-		// run CF
-		 * */
 	
 		logger.info("[COURSE_RECOMMEND_GPS] in course recommend");
 		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
@@ -420,6 +366,7 @@ public class CourseController {
 		/*
 		 * Get recommend from mining
 		 */
+		
 		Recommender tmpRcm = null;
 		for(int num=0; num<categorys.length; num++){
 			try {
@@ -460,16 +407,6 @@ public class CourseController {
 				e.printStackTrace();
 			}
 		}
-		
-		/*
-		 * Get recommend from ratings
-		 */
-		/*
-		for(int num=0; num<categorys.length; num++){
-			placesTaker.add(findPlace(categorys[num], latitude, longitude,3));
-		}
-		*/
-		
 		
 		/*
 		 * Generate Course
@@ -658,8 +595,7 @@ public class CourseController {
 		tmp.put("code",place.getString("code"));
 		
 		
-		if(place.getDouble("ratings")!=null)
-			tmp.put("userRatings", place.getDouble("userRatings"));
+		tmp.put("userRatings", place.getDouble("userRatings"));
 		
 		return tmp;
 	}
