@@ -63,6 +63,7 @@ public class CSVGenerator {
 			placeid = Long.parseLong(review.getString("placeid"));
 			ratings = review.getDouble("ratings");
 			content = userid+","+placeid+","+ratings+"\n";
+			
 			// 식당 
 			if(review.getString("code").equals("FD6")){
 				try {

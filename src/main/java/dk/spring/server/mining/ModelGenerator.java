@@ -74,17 +74,18 @@ public class ModelGenerator {
 			// similarity에 저장한다.
 			UserSimilarity similarity = new PearsonCorrelationSimilarity(
 					dataModel);
-			UserNeighborhood neighborhood = new NearestNUserNeighborhood(2,
+			UserNeighborhood neighborhood = new NearestNUserNeighborhood(4,
 					similarity, dataModel);
-
+			
 			// 추천기 생성.
 			Recommender recommender = new GenericUserBasedRecommender(dataModel,
 					neighborhood, similarity);
+			
 			return recommender;
 			// recommender.recommend 에서 앞에 파라미터가 유저 id, 뒤에 파라미터가 추천갯수
 			
 		} catch(IllegalArgumentException ae){
-			
+			ae.printStackTrace();
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -95,6 +96,7 @@ public class ModelGenerator {
 			e.printStackTrace();
 			return null;
 		} catch (Exception e){
+			e.printStackTrace();
 			return null;
 		}
 

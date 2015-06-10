@@ -24,7 +24,7 @@ import dk.spring.server.model.ReviewModel;
 import dk.spring.util.DatabaseConnector;
 
 @RestController
-public class PlaceController {
+public class ReviewController {
 
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private ObjectMapper mapper = MapperFactory.getMapper();
@@ -74,9 +74,6 @@ public class PlaceController {
 			return "0";
 		}
 		
-		/*
-		 * 에러..ㅠㅠ 
-		 */
 		double userRating = review.getDouble("ratings");
 		double totalRating = connector.getMyCollection( 
 				connector.codeToCollection(review.getString("code"))).find(new Document("id",placeId)).first().getDouble("ratings");

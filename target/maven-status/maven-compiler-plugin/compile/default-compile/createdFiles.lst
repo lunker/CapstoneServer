@@ -1,9 +1,9 @@
 dk/spring/server/Application.class
 dk/spring/server/mining/CSVGenerator.class
+dk/spring/server/controller/ReviewController.class
 dk/spring/server/factory/DBFactory.class
 dk/spring/util/SetRating.class
 dk/spring/server/controller/MyLogger.class
-dk/spring/server/controller/PlaceController.class
 dk/spring/server/mining/MYFileDataModel.class
 dk/spring/server/controller/MyCourseController.class
 dk/spring/util/LocationGenerator.class

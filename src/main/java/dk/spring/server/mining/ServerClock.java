@@ -29,15 +29,14 @@ public class ServerClock extends Thread{
 				
 				csvGenerator.start();
 				modelGenerator.start();
+				
 //				System.out.println("[SERVER_CLOCK] sleep . . .");
 				logger.info("[SERVER_CLOCK] sleep . . .");
-				Thread.sleep(2*MINUTE);// 2분에 한번씩 
+				Thread.sleep(1*MINUTE);// 2분에 한번씩 
 				
 //				time = format.format(Calendar.getInstance().getTime());
 				
 //				System.out.println("[SERVER_CLOCK] " + time + " generate csv");
-				
-				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

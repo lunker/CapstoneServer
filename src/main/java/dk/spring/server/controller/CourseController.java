@@ -210,12 +210,15 @@ public class CourseController {
 				placesTaker.add(new ArrayList<ObjectNode>());
 				// 추천기가 있는 경
 				if(tmpRcm!=null){
+					System.out.println("[COURSE_RECOMMEND]" +"in recommender , user : " + userId.substring(1));
 					List<RecommendedItem> recommendedList = tmpRcm.
 							recommend(Integer.parseInt( userId.substring(1)) , 3 );
 					
 					// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
 					if(recommendedList.size()<3){
 						// ArrayList<ObjectNode>를 반환.
+						
+						System.out.println("[COURSE_RECOMMEND]" +"Recommender size : " +recommendedList.size() );
 						placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
 						
 						for(int i=0; i<recommendedList.size(); i++){
@@ -226,6 +229,7 @@ public class CourseController {
 									makeObjectNode(
 											connector.getPlaceById(
 													categorys[num], recommendedList.get(i).getItemID()+"")));
+							System.out.println("[RECOMMEND_GPS]recommended item : " + recommendedList.get(i).getItemID());
 						}
 					}
 					else if(recommendedList.size()==3){
@@ -237,12 +241,18 @@ public class CourseController {
 									makeObjectNode(
 											connector.getPlaceById(
 													categorys[num], recommendedList.get(i).getItemID()+"")));
+							System.out.println("[RECOMMEND_GPS]recommended item : " + recommendedList.get(i).getItemID());
 						}
+					}
+					else{
+						
+						System.out.println("[COURSE_RECOMMEND]" +"in recommender, else");
 					}
 				}
 				
 				//추천기가 없어서 평점으로만 받아오는 경우 
 				else{
+					System.out.println("[COURSE_RECOMMEND]" +"no recommender");
 					placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3));
 				}
 				
@@ -318,7 +328,6 @@ public class CourseController {
 		
 		Recommender rcm = null;
 		
-		
 		// 식당 
 		if(category.equals("FD6")){
 			rcm = ModelGenerator.getFoodRcm();
@@ -348,10 +357,8 @@ public class CourseController {
 		
 	
 		logger.info("[COURSE_RECOMMEND_GPS] in course recommend");
-		System.out.println("lat,lng, userid : "+latitude+ ","+longitude + "," +userId);
 		
 		/*
-		 * 
 		 * Get user category
 		 */
 		
@@ -393,6 +400,8 @@ public class CourseController {
 									makeObjectNode(
 											connector.getPlaceById(
 													categorys[num], recommendedList.get(i).getItemID()+"")));
+							
+							System.out.println("[RECOMMEND_GPS]recommended item : " + recommendedList.get(i).getItemID());
 						}
 					}
 				}

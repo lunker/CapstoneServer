@@ -297,6 +297,7 @@ public class DatabaseConnector {
 			// 1. userid collection 수정
 			// 2. review collection 수정 
 			// 3. 장소정보 collection 수정 
+			
 			// (1)
 			
 			// get user before ratings
@@ -332,7 +333,6 @@ public class DatabaseConnector {
 			reviewDoc.append("placeid", review.getPlaceId());
 //			reviewDoc.append(key, value);
 					
-			// 이미 평가 했던 적이 있는 경우 
 			getMyCollection(codeToCollection(review.getCode())).findOneAndUpdate(
 					
 					// filter
@@ -341,7 +341,6 @@ public class DatabaseConnector {
 //					new Document("$elemMatch", new Document("review", new Document("userid",review.getUserId())).
 					new Document("$set", new Document("review.$.ratings", Double.parseDouble(review.getRating())).append("review.$.date", review.getDate()))
 					);
-			
 			
 			
 			Document targetPlace = getMyCollection(codeToCollection(review.getCode())).find(new Document("id", review.getPlaceId())).first();
@@ -353,8 +352,6 @@ public class DatabaseConnector {
 			double newRatings = (((ratings * count) - beforeRatings) + Double.parseDouble(review.getRating()) ) /count;
 			getMyCollection(codeToCollection(review.getCode())).
 			findOneAndUpdate( new Document("id", review.getPlaceId()), new Document("$set", new Document("ratings", newRatings)));
-			
-			
 			
 			return "1";
 		
@@ -387,15 +384,6 @@ public class DatabaseConnector {
 			/////////////////////////////////////////////
 			
 			
-			/*
-			 * 사용자 이력에 리뷰아이디 추가 
-			 */
-			/*
-			Document personData = new Document();
-			personData.append("revieweditem", reviewId);
-			addReviewToUser.append("$push", personData);
-			getMyCollection(review.getUserId()).findOneAndUpdate(new Document("id", review.getUserId()), addReviewToUser);  // error??
-			*/
 			
 			reviewDoc.remove("id");
 			reviewDoc.append("reviewid", reviewId);
@@ -414,10 +402,10 @@ public class DatabaseConnector {
 			// update new Ratings
 			
 			Document result = getMyCollection(codeToCollection(review.getCode())).find(find).first();
-			int currentCount = result.getInteger("count", 0);
+			int currentCount = result.getInteger("count", 1);
 			double currentRatings = result.getDouble("ratings");
 			
-			double newRatings = (currentRatings + Double.parseDouble(review.getRating())) / (currentCount+1);
+			double newRatings = ((currentRatings*currentCount) + Double.parseDouble(review.getRating())) / (currentCount+1);
 			
 			update.append("$inc", new Document("count",1));
 			update.append("$set", new Document("ratings", newRatings));

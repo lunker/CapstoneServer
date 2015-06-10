@@ -9,7 +9,6 @@
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/NetWork.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/model/LoginModel.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/Constant.java
-/Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/PlaceController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/DatabaseConnector.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/GoogleNetwork.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/Application.java
@@ -18,6 +17,7 @@
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/model/ReviewModel.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/mining/UserRecomm.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/LocationGenerator.java
+/Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/ReviewController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/SetRating.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/model/UserModel.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/mining/MYFileDataModel.java
