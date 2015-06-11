@@ -16,7 +16,8 @@ import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 /***
  * 
  * 
- * @author Lee Dong Kyoo, 
+ * @author 고형주, Lee Dong Kyoo
+ *  
  * csv파일로부터 Collaborative Filtering 추천기를 생성한다. 
  */
 public class ModelGenerator {
