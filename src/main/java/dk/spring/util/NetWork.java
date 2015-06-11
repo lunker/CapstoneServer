@@ -20,6 +20,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import dk.spring.server.factory.DBFactory;
 
+
+
+/***
+ * 
+ * @author 권성환, Lee Dong Kyoo
+ * 
+ * 다음 API로 부터 장소정보를 가져온다. 
+ *
+ */
 public class NetWork extends Thread{
 
 	

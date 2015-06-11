@@ -2,6 +2,11 @@ package dk.spring.server.factory;
 
 import dk.spring.util.DatabaseConnector;
 
+/***
+ * 
+ * @author Lee Dong Kyoo 
+ *
+ */
 public class DBFactory {
 
 	static DatabaseConnector connector = null;
@@ -11,7 +16,6 @@ public class DBFactory {
 		connector = new DatabaseConnector(); 
 		connector.connect();
 	}
-
 
 	public static DatabaseConnector getConnector() {
 		if(connector != null)

@@ -12,6 +12,13 @@ import org.apache.mahout.cf.taste.neighborhood.UserNeighborhood;
 import org.apache.mahout.cf.taste.recommender.Recommender;
 import org.apache.mahout.cf.taste.similarity.UserSimilarity;
 
+
+/***
+ * 
+ * 
+ * @author Lee Dong Kyoo, 
+ * csv파일로부터 Collaborative Filtering 추천기를 생성한다. 
+ */
 public class ModelGenerator {
 
 	 static Recommender foodRcm = null;
@@ -27,25 +34,7 @@ public class ModelGenerator {
 	static String CSV_REST = "csv_rest.csv";
 	static String CSV_TOUR = "csv_tour.csv";
 	static String CSV_CULTURE = "csv_culture.csv";
-	
-	/*
-	static{
-		
-		for (int i = 0; i < 5; i++) {
-			System.out.println("[MODEL_GENERATOR] initializing . . .");
 
-			switch(i){
-				case 0: cafeRcm = generate(PATH+"/"+CSV_CAFE); break;
-				case 1: cultureRcm = generate(PATH+"/"+CSV_CULTURE);break;
-				case 2: foodRcm = generate(PATH+"/"+CSV_FOOD);break;
-				case 3: restRcm = generate(PATH+"/"+CSV_REST);break;
-				case 4: tourRcm = generate(PATH+"/"+CSV_TOUR);break;
-			
-			}
-		}// end for 
-	}
-	*/
-	
 	
 	public void start() {
 		System.out.println("[MODEL_GENERATOR] initializing . . .");
@@ -74,7 +63,7 @@ public class ModelGenerator {
 			// similarity에 저장한다.
 			UserSimilarity similarity = new PearsonCorrelationSimilarity(
 					dataModel);
-			UserNeighborhood neighborhood = new NearestNUserNeighborhood(4,
+			UserNeighborhood neighborhood = new NearestNUserNeighborhood(2,
 					similarity, dataModel);
 			
 			// 추천기 생성.

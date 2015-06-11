@@ -17,6 +17,16 @@ import com.mongodb.client.MongoCursor;
 import dk.spring.server.Constant;
 import dk.spring.server.factory.DBFactory;
 
+
+
+/***
+ * 
+ * 
+ * @author 권성환, Lee Dong Kyoo
+ *
+ * 구글 API를 이용하여 장소의 평점을 가져온다 
+ */
+
 public class GoogleNetwork extends Thread{
 
 	

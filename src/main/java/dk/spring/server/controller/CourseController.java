@@ -31,6 +31,12 @@ import dk.spring.server.mining.ModelGenerator;
 import dk.spring.server.model.CourseModel;
 import dk.spring.util.DatabaseConnector;
 
+/***
+ * 
+ * @author Lee Dong Kyoo 
+ *
+ * 데이트 코스와 관련된 요청을 처리한다. 
+ */
 
 @RestController
 public class CourseController {
@@ -39,24 +45,14 @@ public class CourseController {
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private ObjectMapper mapper = MapperFactory.getMapper();
 	
-	/*
-	 * 구현해야함 !
+	/***
+	 * 
+	 * @param userId
+	 * @return course
+	 * 
+	 * 사용자가 저장해놓은 데이트 코스를 불러온다.
+	 * 
 	 */
-	
-	/*
-	@RequestMapping(value="/saecourse", method=RequestMethod.POST)
-	public String saveCourse(
-			@RequestParam(value="userid", defaultValue="1", required=false)String userid, 
-			@RequestParam(value="firstplaceid", defaultValue="1", required=false)String firstPlaceId, 
-			@RequestParam(value="secondplaceid", defaultValue="1", required=false)String secondPlaceId, 
-			@RequestParam(value="thirdplaceid", defaultValue="1", required=false)String thirdPlaceId){
-		
-		connector.saveCourse(userid, firstPlaceId, secondPlaceId, thirdPlaceId);
-		
-		return "";
-	}
-	*/
-	
 	@RequestMapping(value="/loadcourse", method=RequestMethod.GET)
 	public String loadCourse(
 			@RequestParam(value="userid")String userId
@@ -130,6 +126,14 @@ public class CourseController {
 		
 	}
 	
+	
+	/***
+	 * 
+	 * @param course
+	 * @return
+	 * 
+	 * 사용자가 선택한 데이트 코스를 저장한다. 
+	 */
 	@RequestMapping(value="/savecourse", method=RequestMethod.POST)
 	public String saveCourse(
 //			@RequestParam(value="userid", defaultValue="1", required=false) String userId,
@@ -175,6 +179,18 @@ public class CourseController {
 		return "1";
 	}
 	
+	/*
+	 * Input : 
+	 *  - latitude : 위도 
+	 *  - longitude : 경도 
+	 *  - userid : 사용자 고유 아이디
+	 *  
+	 * Output : 
+	 *  - course 
+	 *   
+	 * 사용자가 선택한 위치에 따라 코스를 추천해준다. 
+	 *   
+	 */
 	@RequestMapping(value = "/course", method=RequestMethod.GET)
 	public String recommendCourse(
 			@RequestParam(value="latitude", defaultValue="1", required=false)String latitude, 
@@ -184,39 +200,36 @@ public class CourseController {
 
 		logger.info("[COURSE_RECOMMEND] REQUEST : " + userId);
 		
-		/*
-		 * Get user category
-		 */
-		
-		// 1 코스에 사용자가 설정한 카테고리 수 만큼 장소가 들어간다.
-		// 전체적인 코스는 3개 
+		// 사용자가 가입시에 저장한 카테고리의 종류로 코스를 구성한다. 
+		// 추천하는 코스는 최대 3개. 
 		
 		String preferCategorys = connector.getMyCollection(userId).find(new Document("id", userId)).first().getString("prefercategory");
 		System.out.println("categorys"+preferCategorys);
-		String[] categorys = preferCategorys.split(",");
-		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>();
+		String[] categorys = preferCategorys.split(","); 
+		ArrayList<ArrayList<ObjectNode>> placesTaker = new ArrayList<ArrayList<ObjectNode>>(); // 코스정보를 저장한다 
 		
-		/*
-		 * Get recommend from mining
-		 */
 		Recommender tmpRcm = null;
 		
-		// 사용자가 저장한 카테고리 정보 
+		// 사용자가 저장한 카테고리의 수 만큼 1개의 코스를 구성 
+		// num -> 카테고리를 지정한다. 
 		for(int num=0; num<categorys.length; num++){
 			try {
 				
 				// 해당 카테고리의 추천기를 가져온다 
 				tmpRcm = getRecommender(categorys[num]);
 				placesTaker.add(new ArrayList<ObjectNode>());
-				// 추천기가 있는 경
+				
+				
+				// 추천기가 있는 경우 
 				if(tmpRcm!=null){
 					System.out.println("[COURSE_RECOMMEND]" +"in recommender , user : " + userId.substring(1));
+					
+					// 추천기로부터 장소를 추천받는다. 
 					List<RecommendedItem> recommendedList = tmpRcm.
 							recommend(Integer.parseInt( userId.substring(1)) , 3 );
 					
-					// 추천을 3개 미만으로 받을 경우, 나머지는 평점으로 가져온다.
-					if(recommendedList.size()<3){
-						// ArrayList<ObjectNode>를 반환.
+					// 추천을 3개 이하일경우, 나머지는 평점으로 가져온다.
+					if(recommendedList.size()<=3){
 						
 						System.out.println("[COURSE_RECOMMEND]" +"Recommender size : " +recommendedList.size() );
 						placesTaker.get(num).addAll(findPlace(categorys[num], latitude, longitude, 3-recommendedList.size()));
@@ -232,18 +245,7 @@ public class CourseController {
 							System.out.println("[RECOMMEND_GPS]recommended item : " + recommendedList.get(i).getItemID());
 						}
 					}
-					else if(recommendedList.size()==3){
-						for(int i=0; i<recommendedList.size(); i++){
-							
-							placesTaker.
-							get(num).
-								add(
-									makeObjectNode(
-											connector.getPlaceById(
-													categorys[num], recommendedList.get(i).getItemID()+"")));
-							System.out.println("[RECOMMEND_GPS]recommended item : " + recommendedList.get(i).getItemID());
-						}
-					}
+					
 					else{
 						
 						System.out.println("[COURSE_RECOMMEND]" +"in recommender, else");
@@ -284,6 +286,17 @@ public class CourseController {
 		return root.toString();
 	}
 
+	
+	/***
+	 * 
+	 * @param code
+	 * @param latitude
+	 * @param longitude
+	 * @param count
+	 * @return
+	 * 
+	 * 해당 collection으로부터 현재위치에서 가까운 장소들을 찾는다.
+	 */
 	public ArrayList<ObjectNode> findPlace(String code, String latitude, String longitude, int count){
 		
 		ArrayList<ObjectNode> placeStack = new ArrayList<ObjectNode>();
@@ -324,6 +337,14 @@ public class CourseController {
 		return placeStack;
 	}
 	
+	
+	/***
+	 * 
+	 * @param category
+	 * @return recommender 
+	 * 
+	 * 카테고리에 맞는 추천기를 반환한다. 
+	 */
 	public Recommender getRecommender(String category){
 		
 		Recommender rcm = null;
@@ -348,6 +369,16 @@ public class CourseController {
 		return rcm; 
 	}
 	
+	/***
+	 * 
+	 * @param latitude
+	 * @param longitude
+	 * @param userId
+	 * @return
+	 * 
+	 * 현재 사용자의 위치에 따른 데이트 코스 추천 
+	 * 
+	 */
 	@RequestMapping(value="/courseGPS")
 	public String recommendCourseByGPS(
 			@RequestParam(value="latitude")String latitude,
@@ -437,21 +468,6 @@ public class CourseController {
 		
 		return root.toString();
 		
-	}
-	
-	@RequestMapping(value="/courseTheme")
-	public String recommedCourseByTheme(
-			
-			){
-		
-		return "";
-	}
-	
-	@RequestMapping(value="/courseRegion")
-	public String recommendCourseByRegion(){
-		
-		
-		return "";
 	}
 	
 	@RequestMapping(value="/courseCondition", method=RequestMethod.GET)
@@ -583,6 +599,13 @@ public class CourseController {
 		return root.toString();
 	}
 	
+	/***
+	 * 
+	 * @param place
+	 * @return
+	 * 
+	 * place POJO를 JsonObject로 변환한다. 
+	 */
 	public ObjectNode makeObjectNode(Document place){
 		
 		ObjectNode tmp = new ObjectNode(mapper.getNodeFactory());
@@ -609,6 +632,17 @@ public class CourseController {
 		return tmp;
 	}
 	
+	
+	/***
+	 * 
+	 * @param lat1
+	 * @param lng1
+	 * @param lat2
+	 * @param lng2
+	 * @return
+	 * 
+	 * 두 지점의 거리를 위도,경도를 이용하여 계산한다. 
+	 */
 	public static float distFrom(float lat1, float lng1, float lat2, float lng2) {
 		double earthRadius = 6371000; // meters
 		double dLat = Math.toRadians(lat2 - lat1);

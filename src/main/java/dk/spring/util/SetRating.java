@@ -8,6 +8,14 @@ import com.mongodb.client.MongoCursor;
 import dk.spring.server.Constant;
 import dk.spring.server.factory.DBFactory;
 
+
+/***
+ * 
+ * 
+ * @author Lee Dong Kyoo
+ *
+ * 데이터베이스에 빠져있는 평점을 보충한다. 
+ */
 public class SetRating extends Thread {
 
 	private DatabaseConnector connector = null;

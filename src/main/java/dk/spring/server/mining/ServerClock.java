@@ -5,6 +5,13 @@ import java.util.Calendar;
 
 import org.apache.log4j.Logger;
 
+
+/**
+ * @author Lee Dong Kyoo 
+ * 
+ * Collaborative Filtering을 위하여 주기적으로 
+ * CSV파일과 Collaborative Filtering Recommender를 업데이트한다. 
+ */
 public class ServerClock extends Thread{
 
 	private SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd','HH:mm:ss");
@@ -30,13 +37,9 @@ public class ServerClock extends Thread{
 				csvGenerator.start();
 				modelGenerator.start();
 				
-//				System.out.println("[SERVER_CLOCK] sleep . . .");
 				logger.info("[SERVER_CLOCK] sleep . . .");
-				Thread.sleep(1*MINUTE);// 2분에 한번씩 
+				Thread.sleep(8*SECOND);// 5초에 한번씩 
 				
-//				time = format.format(Calendar.getInstance().getTime());
-				
-//				System.out.println("[SERVER_CLOCK] " + time + " generate csv");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

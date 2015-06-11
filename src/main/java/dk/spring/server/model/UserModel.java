@@ -4,6 +4,12 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+/***
+ * 
+ * @author Lee Dong Kyoo
+ *
+ */
 public class UserModel {
 
 	

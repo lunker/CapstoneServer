@@ -23,6 +23,16 @@ import dk.spring.server.factory.MapperFactory;
 import dk.spring.server.model.ReviewModel;
 import dk.spring.util.DatabaseConnector;
 
+
+
+/***
+ * 
+ * 
+ * @author Lee Dong Kyoo 
+ *
+ * 장소 평점에 관한 요청을 처리한다.
+ * 
+ */
 @RestController
 public class ReviewController {
 
@@ -39,7 +49,16 @@ public class ReviewController {
 		else
 			return placeInfo;
 	}
-
+	
+	/*
+	 * Input : ReviewModel
+	 * Output : 
+	 * 	"0"  - fail  
+	 * 	"1" - success 
+	 * 
+	 * 사용자가 평가한 평점을 반환한다.
+	 * 
+	 */
 	@RequestMapping(value = "/review", method = RequestMethod.GET)
 	public String getReviewInPlace(@RequestParam(value="placeid")String placeId) {
 
@@ -53,6 +72,14 @@ public class ReviewController {
 			return reviewInfo;
 	}
 
+	
+	/***
+	 * 
+	 * @param review
+	 * @return
+	 * 
+	 * 사용자가 남긴 평점을 저장한다. 
+	 */
 	@RequestMapping(value = "/savereview", method = RequestMethod.POST)
 	public String saveReview(@RequestBody ReviewModel review) {
 
@@ -60,6 +87,7 @@ public class ReviewController {
 		
 		return result;
 	}
+	
 	
 	@RequestMapping(value="getreview", method=RequestMethod.GET)
 	public String getReview( 

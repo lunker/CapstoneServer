@@ -18,6 +18,13 @@ import dk.spring.server.model.UserModel;
 import dk.spring.util.DatabaseConnector;
 
 
+/***
+ * 
+ * 
+ * @author Lee Dong Kyoo
+ *
+ * 사용자 정보와 관련된 요청을 처리한다. 
+ */
 @RestController
 public class UserController {
 
@@ -25,43 +32,60 @@ public class UserController {
 	private ObjectMapper mapper = MapperFactory.getMapper();
 	private Logger logger = Logger.getLogger(UserController.class);
 	
+	
+	/***
+	 * 
+	 * @param user
+	 * @return userid  || "0"
+	 * 
+	 * 회원가입 
+	 */
 	@RequestMapping(value="/signup", method=RequestMethod.POST)
 	public String signUp(@RequestBody UserModel user){
-		System.out.println("signup!");
-		System.out.println("[POST][signup]" + user.getEmail());
-		
-		return connector.saveUser(user);
-	}
-	
-	@RequestMapping(value="/loginn")
-	public String login(@RequestParam(value="email", defaultValue="123", required=false) String email,
-			@RequestParam(value="password", defaultValue="1", required=false) String password){
-		
-//		System.out.println("asdfasdf");
-		logger.info("in login!");
-		System.out.println(email);
-		System.out.println(password);
-		/*
-		ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-		JsonNode preferNode = null;
-		try {
-			 preferNode = mapper.readTree(preferStr);
-			 if(preferNode.isArray()){
-				 for(int i=0; i<preferNode.size(); i++){
-					 JsonNode preferCategory = preferNode.get(i);
-				 }
-			 }
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
+//		System.out.println("signup!");
+//		System.out.println("[POST][signup]" + user.getEmail());
 		String result = "";
-		result = connector.login(email, password);
+		
+		result = connector.saveUser(user);
+		
+		if(result.equals("0"))
+			logger.info("[SIGN_UP] FAIL");
+		else
+			logger.info("[SIGN_UP] SUCCESS");
 		
 		return result;
 	}
 	
+	/***
+	 * 
+	 * @param email
+	 * @param password
+	 * @return "1" -> success, "0"-> fail
+	 * 
+	 * 로그인 
+	 */
+	@RequestMapping(value="/loginn")
+	public String login(@RequestParam(value="email", defaultValue="123", required=false) String email,
+			@RequestParam(value="password", defaultValue="1", required=false) String password){
+		
+		String result = "";
+		result = connector.login(email, password);
+		
+		if(result.equals("0"))
+			logger.info("[LOGIN] SUCCESS");
+		else
+			logger.info("[LOGIN] FAIL");
+		return result;
+	}
+	
+	
+	/***
+	 * 
+	 * @param model
+	 * @return "1" -> success, "0" -> fail
+	 * 
+	 * 사용자 선호 카테고리 수정 
+	 */
 	@RequestMapping(value="/saveCategory", method=RequestMethod.POST)
 	public String saveCategory(
 			@RequestBody SaveCategoryModel model

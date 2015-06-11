@@ -1,12 +1,11 @@
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/model/SaveCategoryModel.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/mining/ServerClock.java
-/Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/MyLogger.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/UserController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/CourseController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/factory/DBFactory.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/mining/CSVGenerator.java
-/Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/HomeController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/NetWork.java
+/Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/controller/HomeController.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/model/LoginModel.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/server/Constant.java
 /Users/lunker/Documents/springworkspace/CapstoneServer/src/main/java/dk/spring/util/DatabaseConnector.java

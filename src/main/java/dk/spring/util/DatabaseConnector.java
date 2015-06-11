@@ -15,6 +15,14 @@ import dk.spring.server.Constant;
 import dk.spring.server.model.ReviewModel;
 import dk.spring.server.model.UserModel;
 
+
+/***
+ * 
+ * 
+ * @author Lee Dong Kyoo 
+ * 데이터베이스 조회,삭제 등의 작업을 처리한다.
+ * 
+ */
 public class DatabaseConnector {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DatabaseConnector.class);

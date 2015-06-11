@@ -3,6 +3,12 @@ package dk.spring.server.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+
+/***
+ * 
+ * @author Lee Dong Kyoo
+ *
+ */
 public class CourseModel {
 	
 	

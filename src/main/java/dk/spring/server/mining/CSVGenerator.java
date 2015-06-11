@@ -15,6 +15,14 @@ import dk.spring.server.factory.DBFactory;
 import dk.spring.util.DatabaseConnector;
 
 
+/***
+ * 
+ * @author Lee Dong Kyoo 
+ * Database로부터 사용자들이 남긴 유저 평점들을 가져와서 
+ * 추천기 생성에 필요한 csv file을 생성한다. 
+ * 
+ */
+
 public class CSVGenerator {
 
 	
@@ -43,6 +51,10 @@ public class CSVGenerator {
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private Logger logger = Logger.getLogger(CSVGenerator.class.getName());
 	
+	
+	/***
+	 * write to CSV file
+	 */
 	public void start(){
 		logger.info("[CSV_GENERATOR] start generate");
 		fileOpen();
@@ -115,6 +127,9 @@ public class CSVGenerator {
 		}// end while
 	}// end method 
 	
+	/***
+	 * csv file open 
+	 */
 	public void fileOpen(){
 		logger.info("[CSV_GENERATOR] file open");
 		try {
