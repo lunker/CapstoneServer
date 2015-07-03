@@ -1,9 +1,12 @@
 package dk.spring.server.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Stack;
 
 import org.apache.catalina.connector.Request;
+import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,6 +42,9 @@ public class ReviewController {
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private ObjectMapper mapper = MapperFactory.getMapper();
 
+	private Logger logger = Logger.getLogger(ReviewController.class);
+	private SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd','HH:mm:ss");
+	
 	@RequestMapping(value = "/place", method = RequestMethod.GET)
 	public String getPlace(String code, String latitude, String longitude) {
 
@@ -83,8 +89,9 @@ public class ReviewController {
 	@RequestMapping(value = "/savereview", method = RequestMethod.POST)
 	public String saveReview(@RequestBody ReviewModel review) {
 
+		logger.info("[SAVE_REVIEW] request time : " + format.format(Calendar.getInstance().getTime()) );
 		String result = connector.saveReview(review);
-		
+		logger.info("[SAVE_REVIEW] complete time : " + format.format(Calendar.getInstance().getTime()) );
 		return result;
 	}
 	

@@ -1,7 +1,9 @@
 package dk.spring.server.controller;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -44,6 +46,7 @@ public class CourseController {
 	private Logger logger = Logger.getLogger(CourseController.class);
 	private DatabaseConnector connector = DBFactory.getConnector();
 	private ObjectMapper mapper = MapperFactory.getMapper();
+	private SimpleDateFormat format = new SimpleDateFormat("yyyy.MM.dd','HH:mm:ss");
 	
 	/***
 	 * 
@@ -58,6 +61,7 @@ public class CourseController {
 			@RequestParam(value="userid")String userId
 			){
 		logger.info("[LOAD_COURSE] REQUEST : " + userId);
+		logger.info("[LOAD_COURSE] request time : " + format.format(Calendar.getInstance().getTime()) );
 //		System.out.println("[LOAD_COURSE] " + userId);
 		Document course = null;
 		try{
@@ -113,13 +117,15 @@ public class CourseController {
 //				courseArrayNode = null;
 				placeIdsNode = null;
 				course = null;
-				
+				logger.info("[LOAD_COURSE] complete time : " + format.format(Calendar.getInstance().getTime()) );
 				return root.toString();
 			}// end if
 			else{
+				logger.info("[LOAD_COURSE] complete time : " + format.format(Calendar.getInstance().getTime()) );
 				return "0";
 			}
 		} catch(Exception e){
+			logger.info("[LOAD_COURSE] complete time : " + format.format(Calendar.getInstance().getTime()) );
 			return "0";
 		}
 		
@@ -143,6 +149,7 @@ public class CourseController {
 		
 //		System.out.println("userid:"+ course.getUserId() + "placeids" + course.getPlaceIds());
 		logger.info("[SAVE_COURSE] REQEUST : " + course.getUserId());
+		logger.info("[SAVE_COURSE] request time : " + format.format(Calendar.getInstance().getTime()) );
 		/*
 		int totalCourses = 0;
 		
@@ -175,7 +182,7 @@ public class CourseController {
 			me.printStackTrace();
 			return "0";
 		}
-		
+		logger.info("[SAVE_COURSE] complete time : " + format.format(Calendar.getInstance().getTime()) );
 		return "1";
 	}
 	
@@ -199,7 +206,7 @@ public class CourseController {
 			){
 
 		logger.info("[COURSE_RECOMMEND] REQUEST : " + userId);
-		
+		logger.info("[COURSE_RECOMMEND] request time : " + format.format(Calendar.getInstance().getTime()) );
 		// 사용자가 가입시에 저장한 카테고리의 종류로 코스를 구성한다. 
 		// 추천하는 코스는 최대 3개. 
 		
@@ -282,7 +289,7 @@ public class CourseController {
 //		root.putArray("course2").add(placeFirstStack.get(1)).add(placeSecondStack.get(1)).add(placeThirdStack.get(1));
 //		root.putArray("course3").add(placeFirstStack.get(2)).add(placeSecondStack.get(2)).add(placeThirdStack.get(2));
 		placesTaker = null;
-		
+		logger.info("[COURSE_RECOMMEND] complete time : " + format.format(Calendar.getInstance().getTime()) );
 		return root.toString();
 	}
 

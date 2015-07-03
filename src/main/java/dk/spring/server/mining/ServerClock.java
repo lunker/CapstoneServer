@@ -38,7 +38,7 @@ public class ServerClock extends Thread{
 				modelGenerator.start();
 				
 				logger.info("[SERVER_CLOCK] sleep . . .");
-				Thread.sleep(8*SECOND);// 5초에 한번씩 
+				Thread.sleep(8*MINUTE);// 5초에 한번씩 
 				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
