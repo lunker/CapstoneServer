@@ -10,3 +10,4 @@ Date course recommendation application
 * Spring boot
 * Mahout
 * MongoDB
+* Jackson Json
